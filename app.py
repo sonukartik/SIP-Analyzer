@@ -8,6 +8,10 @@ import base64
 
 app = Flask(__name__)
 
+@app.route('/ping')
+def ping():
+    return 'pong', 200
+
 # Utility function to format with Lakhs/Cr
 def format_full_with_unit(value):
     formatted_full = f"{value:,.2f}"

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SIP Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+        }
+        .btn-custom {
+            background: #007bff;
+            color: white;
+            border-radius: 0.5rem;
+        }
+        .btn-custom:hover {
+            background: #0056b3;
+        }
+        .chart-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary">Investment Growth & Cost Impact Analyzer</h1>
+        <p class="text-muted">Visualize your investments, returns, and costs easily</p>
+    </div>
+
+    <div class="card p-4 mb-4">
+        <form method="post">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Monthly SIP (₹)</label>
+                    <input type="number" class="form-control" name="monthly_sip" value="{{ request.form.monthly_sip or '' }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Expected Annual Return (%)</label>
+                    <input type="number" step="0.01" class="form-control" name="annual_return" value="{{ request.form.annual_return or '' }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Expense Ratio (%)</label>
+                    <input type="number" step="0.01" class="form-control" name="expense_ratio" value="{{ request.form.expense_ratio or '' }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Years</label>
+                    <input type="number" class="form-control" name="years" value="{{ request.form.years or '' }}" required>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedOptions" aria-expanded="false" aria-controls="advancedOptions">
+                    Show Advanced Options
+                </button>
+            </div>
+
+            <div class="collapse mt-3" id="advancedOptions">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Inflation Rate (%)</label>
+                        <input type="number" step="0.01" class="form-control" name="inflation_rate" value="{{ request.form.inflation_rate or 0 }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-custom px-4">Calculate</button>
+            </div>
+        </form>
+    </div>
+
+    {% if result %}
+    <div class="card p-4">
+        <h4 class="text-success mb-3">Results:</h4>
+        <div>
+            <div class="d-flex mb-2">
+                <strong class="me-2" style="width: 250px;">Total Invested:</strong> 
+                <span>₹{{ result.total_invested | with_unit }}</span>
+            </div>
+            <div class="d-flex mb-2">
+                <strong class="me-2" style="width: 250px;">Gross Corpus:</strong> 
+                <span>₹{{ result.gross_corpus | with_unit }}</span>
+            </div>
+            <div class="d-flex mb-2">
+                <strong class="me-2" style="width: 250px;">Fees Paid:</strong> 
+                <span>₹{{ result.fees_paid | with_unit }}</span>
+            </div>
+            <div class="d-flex mb-2">
+                <strong class="me-2" style="width: 250px;">Final Corpus:</strong> 
+                <span>₹{{ result.final_corpus | with_unit }}</span>
+            </div>
+            <div class="d-flex mb-2">
+                <strong class="me-2" style="width: 250px;">Inflation-Adjusted Gross Corpus:</strong> 
+                <span>₹{{ result.inflation_adjusted_final_corpus | with_unit }}</span>
+            </div>
+        </div>
+
+        {% if chart %}
+        <div class="chart-container mt-4">
+            <img src="data:image/png;base64,{{ chart }}" class="img-fluid rounded shadow" alt="Pie Chart">
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

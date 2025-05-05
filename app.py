@@ -45,22 +45,19 @@ def calculate_sip(monthly_sip, annual_return, expense_ratio, years, inflation_ra
     corpus_no_fee = values_no_fee[-1]
     fees_paid = max(0, corpus_no_fee - gross_corpus)
 
-    # Post-fee corpus
-    corpus_after_tax = gross_corpus-fees_paid
-
     # Inflation impact
-    inflation_impact = max(0, corpus_after_tax * (1 - (1 / ((1 + inflation_rate) ** years))))
-    final_corpus = corpus_after_tax - inflation_impact
+    inflation_impact = max(0, gross_corpus * (1 - (1 / ((1 + inflation_rate) ** years))))
+    final_corpus = gross_corpus - inflation_impact
     final_corpus = max(0, min(final_corpus, gross_corpus))
 
-    net_return = max(0, corpus_after_tax - total_invested)
+    net_return = max(0, gross_corpus - total_invested)
 
     return {
         "total_invested": round(total_invested, 2),
-        "gross_corpus": round(gross_corpus, 2),
+        "gross_corpus": round(corpus_no_fee, 2),
         "fees_paid": round(fees_paid, 2),
         "inflation_adjusted_final_corpus": round(final_corpus, 2),
-        "final_corpus": round(corpus_after_tax, 2),
+        "final_corpus": round(gross_corpus, 2),
         "net_return": round(net_return, 2),
     }
 

@@ -8,10 +8,6 @@ import base64
 
 app = Flask(__name__)
 
-@app.route('/ping')
-def ping():
-    return 'pong', 200
-
 # Utility function to format with Lakhs/Cr
 def format_full_with_unit(value):
     formatted_full = f"{value:,.2f}"
@@ -29,37 +25,34 @@ app.jinja_env.filters['with_unit'] = format_full_with_unit
 
 def calculate_sip(monthly_sip, annual_return, expense_ratio, years, inflation_rate):
     total_months = years * 12
-
-    net_annual_return = annual_return - expense_ratio
-    monthly_return = (1 + net_annual_return) ** (1/12) - 1
-
-    # With fees
     values = np.zeros(total_months + 1)
+
+    monthly_return = (1 + annual_return) ** (1 / 12) - 1
+
     for month in range(1, total_months + 1):
         values[month] = (values[month - 1] + monthly_sip) * (1 + monthly_return)
+        if month % 12 == 0:  # Deduct expense ratio yearly
+            values[month] *= (1 - expense_ratio)
 
     gross_corpus = values[-1]
     total_invested = monthly_sip * total_months
 
-    # Without fees (for calculating fees paid)
+    # For calculating fees paid (no expense ratio)
     values_no_fee = np.zeros(total_months + 1)
-    monthly_return_full = (1 + annual_return) ** (1/12) - 1
     for month in range(1, total_months + 1):
-        values_no_fee[month] = (values_no_fee[month - 1] + monthly_sip) * (1 + monthly_return_full)
-    corpus_no_fee = values_no_fee[-1]
+        values_no_fee[month] = (values_no_fee[month - 1] + monthly_sip) * (1 + monthly_return)
 
-    # Fees paid
+    corpus_no_fee = values_no_fee[-1]
     fees_paid = max(0, corpus_no_fee - gross_corpus)
-    corpus_after_tax=gross_corpus-fees_paid
+
+    # Post-fee corpus
+    corpus_after_tax = gross_corpus-fees_paid
+
     # Inflation impact
     inflation_impact = max(0, corpus_after_tax * (1 - (1 / ((1 + inflation_rate) ** years))))
-
-
-    # Final corpus
     final_corpus = corpus_after_tax - inflation_impact
     final_corpus = max(0, min(final_corpus, gross_corpus))
 
-    # Net returns (optional)
     net_return = max(0, corpus_after_tax - total_invested)
 
     return {
@@ -67,7 +60,7 @@ def calculate_sip(monthly_sip, annual_return, expense_ratio, years, inflation_ra
         "gross_corpus": round(gross_corpus, 2),
         "fees_paid": round(fees_paid, 2),
         "inflation_adjusted_final_corpus": round(final_corpus, 2),
-        "final_corpus":round(corpus_after_tax,2),
+        "final_corpus": round(corpus_after_tax, 2),
         "net_return": round(net_return, 2),
     }
 

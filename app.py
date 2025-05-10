@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 import io
 import base64
 
+@app.route('/googled31b5d709c031016.html')
+def google_verify():
+    return 'google-site-verification: googled31b5d709c031016.html', 200
+
 app = Flask(__name__)
 
 # Utility function to format with Lakhs/Cr

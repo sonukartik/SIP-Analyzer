@@ -32,6 +32,29 @@
         }
     </style>
 </head>
+<script>
+window.addEventListener('DOMContentLoaded', function () {
+    if (!localStorage.getItem('cookieConsent')) {
+        const consentBanner = document.createElement('div');
+        consentBanner.innerHTML = `
+            <div class="cookie-consent bg-light border-top p-3 fixed-bottom text-center shadow-sm">
+                <p class="mb-2">
+                    This website uses cookies to ensure you get the best experience and display relevant ads.
+                    <a href="/terms" class="text-primary">Learn more</a>
+                </p>
+                <button id="acceptCookies" class="btn btn-sm btn-primary">Accept</button>
+            </div>
+        `;
+        document.body.appendChild(consentBanner);
+
+        document.getElementById('acceptCookies').addEventListener('click', function () {
+            localStorage.setItem('cookieConsent', 'true');
+            consentBanner.remove();
+        });
+    }
+});
+</script>
+
 <body>
 
 <div class="container py-5">

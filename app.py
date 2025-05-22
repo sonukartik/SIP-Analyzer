@@ -16,6 +16,17 @@ def terms():
 def google_verify():
     return 'google-site-verification: googled31b5d709c031016.html', 200
 
+@app.route('/robots.txt')
+def robots_txt():
+    lines = [
+        "User-agent: *",
+        "Disallow:",
+
+        "User-agent: Mediapartners-Google",
+        "Disallow:"
+    ]
+    return "\n".join(lines), 200, {'Content-Type': 'text/plain'}
+
 # Utility function to format with Lakhs/Cr
 def format_full_with_unit(value):
     formatted_full = f"{value:,.2f}"

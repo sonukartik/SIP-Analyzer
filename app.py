@@ -20,10 +20,10 @@ def google_verify():
 def robots_txt():
     lines = [
         "User-agent: *",
-        "Disallow:",
+        "Allow: /",  # Allow all pages to be crawled
 
-        "User-agent: Mediapartners-Google",
-        "Disallow:"
+        "User-agent: Mediapartners-Google", # Specifically for AdSense
+        "Allow: /"
     ]
     return "\n".join(lines), 200, {'Content-Type': 'text/plain'}
 

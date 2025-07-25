@@ -2,146 +2,633 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3229320652703762"
-    crossorigin="anonymous"></script>
-    <title>SIP Calculator</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIP Calculator with Tax Planning</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(to right, #e0eafc, #cfdef3);
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        .card {
-            border-radius: 1rem;
-            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
-        .form-control, .form-select {
-            border-radius: 0.5rem;
-        }
-        .btn-custom {
-            background: #007bff;
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-radius: 0.5rem;
+            padding: 30px;
+            text-align: center;
         }
-        .btn-custom:hover {
-            background: #0056b3;
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Tab Navigation Styles */
+        .tab-navigation {
+            background: white;
+            border-bottom: 1px solid #e1e5f2;
+            display: flex;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 20px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 40px;
+        }
+
+        .form-section {
+            background: #f8f9ff;
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #e1e5f2;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5f2;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .advanced-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e1e5f2;
+        }
+
+        .advanced-toggle {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .advanced-toggle:hover {
+            color: #764ba2;
+        }
+
+        .advanced-options {
+            display: none;
+        }
+
+        .advanced-options.show {
+            display: block;
+        }
+
+        .tax-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .tax-info strong {
+            color: #6c5214;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .results-section {
+            background: #f8f9ff;
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #e1e5f2;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-item.highlight {
+            border-left-color: #2ecc71;
+            background: linear-gradient(135deg, #f0fff4 0%, #e8f5e8 100%);
+        }
+
+        .result-item.tax {
+            border-left-color: #f39c12;
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+        }
+
+        .result-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .result-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
         .chart-container {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
+        }
+
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-results {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+                padding: 20px;
+                gap: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-section, .results-section {
+                padding: 20px;
+            }
+
+            .tab-btn {
+                padding: 15px 20px;
+                font-size: 14px;
+            }
+        }
+
+        .arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .arrow.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* Simple calculator specific styles */
+        .simple-results .result-item {
+            margin-bottom: 15px;
+        }
+
+        .simple-results .result-value {
+            font-size: 28px;
         }
     </style>
 </head>
-<script>
-window.addEventListener('DOMContentLoaded', function () {
-    if (!localStorage.getItem('cookieConsent')) {
-        const consentBanner = document.createElement('div');
-        consentBanner.innerHTML = `
-            <div class="cookie-consent bg-light border-top p-3 fixed-bottom text-center shadow-sm">
-                <p class="mb-2">
-                    This website uses cookies to ensure you get the best experience and display relevant ads.
-                    <a href="/terms" class="text-primary">Learn more</a>
-                </p>
-                <button id="acceptCookies" class="btn btn-sm btn-primary">Accept</button>
-            </div>
-        `;
-        document.body.appendChild(consentBanner);
-
-        document.getElementById('acceptCookies').addEventListener('click', function () {
-            localStorage.setItem('cookieConsent', 'true');
-            consentBanner.remove();
-        });
-    }
-});
-</script>
-<footer class="text-center mt-5 mb-3">
-    <a href="/terms" class="text-muted">Terms & Conditions</a>
-</footer>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 SIP Calculator</h1>
+            <p>Plan your investments with tax considerations</p>
+        </div>
 
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="fw-bold text-primary">Investment Growth & Cost Impact Analyzer</h1>
-        <p class="text-muted">Visualize your investments, returns, and costs easily</p>
-    </div>
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn {% if not result %}active{% endif %}" onclick="switchTab('simple')">Simple SIP Calculator</button>
+            <button class="tab-btn {% if result %}active{% endif %}" onclick="switchTab('advanced')">Advanced SIP Calculator</button>
+        </div>
 
-    <div class="card p-4 mb-4">
-        <form method="post">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Monthly SIP (₹)</label>
-                    <input type="number" class="form-control" name="monthly_sip" value="{{ request.form.monthly_sip or '' }}" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Expected Annual Return (%)</label>
-                    <input type="number" step="0.01" class="form-control" name="annual_return" value="{{ request.form.annual_return or '' }}" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Expense Ratio (%)</label>
-                    <input type="number" step="0.01" class="form-control" name="expense_ratio" value="{{ request.form.expense_ratio or '' }}" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Years</label>
-                    <input type="number" class="form-control" name="years" value="{{ request.form.years or '' }}" required>
-                </div>
+        <!-- Simple SIP Calculator Tab -->
+        <div id="simple-tab" class="tab-content {% if not result %}active{% endif %}">
+            <div class="content">
+                <div class="form-section">
+                    <h2 style="margin-bottom: 20px; color: #333;">📈 Simple SIP Calculator</h2>
+                    <form id="simple-form">
+            <div class="form-group">
+                            <label for="simple_monthly_sip">Monthly SIP Amount (₹)</label>
+                            <input type="number" id="simple_monthly_sip" name="simple_monthly_sip" 
+                                   value="5000" required min="100" step="100">
             </div>
 
-            <div class="mt-4">
-                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedOptions" aria-expanded="false" aria-controls="advancedOptions">
-                    Show Advanced Options
-                </button>
+            <div class="form-group">
+                            <label for="simple_annual_return">Expected Annual Return (%)</label>
+                            <input type="number" id="simple_annual_return" name="simple_annual_return" 
+                                   value="12" required min="1" max="30" step="0.1">
             </div>
 
-            <div class="collapse mt-3" id="advancedOptions">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Inflation Rate (%)</label>
-                        <input type="number" step="0.01" class="form-control" name="inflation_rate" value="{{ request.form.inflation_rate or 0 }}">
+            <div class="form-group">
+                            <label for="simple_years">Investment Period (Years)</label>
+                            <input type="number" id="simple_years" name="simple_years" 
+                                   value="10" required min="1" max="50">
+                        </div>
+
+                        <button type="button" class="calculate-btn" onclick="calculateSimpleSIP()">Calculate SIP Returns</button>
+                    </form>
+                </div>
+
+                <div class="results-section">
+                    <div id="simple-results">
+                        <div class="no-results">
+                            <h2>💡 Enter your SIP details</h2>
+                            <p>Fill in the form to calculate your basic SIP returns.</p>
+                        </div>
+                    </div>
+                    <div id="simple-chart-container" class="chart-container" style="display: none;">
+                        <h3 style="margin-bottom: 15px; color: #333;">Corpus Breakdown</h3>
+                        <canvas id="simpleSipChart"></canvas>
                     </div>
                 </div>
             </div>
-
-            <div class="mt-4 text-end">
-                <button type="submit" class="btn btn-custom px-4">Calculate</button>
-            </div>
-        </form>
-    </div>
-
-    {% if result %}
-    <div class="card p-4">
-        <h4 class="text-success mb-3">Results:</h4>
-        <div>
-            <div class="d-flex mb-2">
-                <strong class="me-2" style="width: 250px;">Total Invested:</strong> 
-                <span>₹{{ result.total_invested | with_unit }}</span>
-            </div>
-            <div class="d-flex mb-2">
-                <strong class="me-2" style="width: 250px;">Gross Corpus:</strong> 
-                <span>₹{{ result.gross_corpus | with_unit }}</span>
-            </div>
-            <div class="d-flex mb-2">
-                <strong class="me-2" style="width: 250px;">Fees Paid:</strong> 
-                <span>₹{{ result.fees_paid | with_unit }}</span>
-            </div>
-            <div class="d-flex mb-2">
-                <strong class="me-2" style="width: 250px;">Final Corpus:</strong> 
-                <span>₹{{ result.final_corpus | with_unit }}</span>
-            </div>
-            <div class="d-flex mb-2">
-                <strong class="me-2" style="width: 250px;">Inflation-Adjusted Gross Corpus:</strong> 
-                <span>₹{{ result.inflation_adjusted_final_corpus | with_unit }}</span>
-            </div>
         </div>
 
-        {% if chart %}
-        <div class="chart-container mt-4">
-            <img src="data:image/png;base64,{{ chart }}" class="img-fluid rounded shadow" alt="Pie Chart">
-        </div>
-        {% endif %}
-    </div>
-    {% endif %}
-</div>
+        <!-- Advanced SIP Calculator Tab -->
+        <div id="advanced-tab" class="tab-content {% if result %}active{% endif %}">
+            <div class="content">
+                <div class="form-section">
+                    <h2 style="margin-bottom: 20px; color: #333;">🔧 Advanced SIP Calculator</h2>
+                    <form method="POST">
+                        <div class="form-group">
+                            <label for="monthly_sip">Monthly SIP Amount (₹)</label>
+                            <input type="number" id="monthly_sip" name="monthly_sip" 
+                                   value="{{ form_data.monthly_sip }}" required min="100" step="100">
+                        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+                        <div class="form-group">
+                            <label for="annual_return">Expected Annual Return (%)</label>
+                            <input type="number" id="annual_return" name="annual_return" 
+                                   value="{{ form_data.annual_return * 100 }}" 
+                                   required min="1" max="30" step="0.1">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="expense_ratio">Expense Ratio (%)</label>
+                            <input type="number" id="expense_ratio" name="expense_ratio" 
+                                   value="{{ form_data.expense_ratio * 100 }}" 
+                                   required min="0" max="5" step="0.1">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="years">Investment Period (Years)</label>
+                            <input type="number" id="years" name="years" 
+                                   value="{{ form_data.years }}" required min="1" max="50">
+                        </div>
+
+                        <div class="advanced-section">
+                            <button type="button" class="advanced-toggle" onclick="toggleAdvanced()">
+                                <span class="arrow">▼</span> Advanced Options
+                            </button>
+                            
+                            <div class="advanced-options" id="advancedOptions">
+                                <div class="form-group">
+                                    <label for="inflation_rate">Inflation Rate (% per year)</label>
+                                    <input type="number" id="inflation_rate" name="inflation_rate" 
+                                           value="{{ form_data.inflation_rate * 100 }}" 
+                                           min="0" max="15" step="0.1">
+                                </div>
+
+                                <div class="tax-info">
+                                    <strong>Capital Gains Tax Information:</strong><br>
+                                    • <strong>LTCG (Long Term):</strong> Applied to gains from investments held for more than 1 year<br>
+                                    • <strong>STCG (Short Term):</strong> Applied to gains from investments held for 1 year or less<br>
+                                    • Current rates: LTCG ~10-12.5%, STCG ~15-30% (varies by asset class)
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="ltcg_rate">LTCG Tax Rate (% on gains)</label>
+                                    <input type="number" id="ltcg_rate" name="ltcg_rate" 
+                                           value="{{ form_data.ltcg_rate * 100 }}" 
+                                           min="0" max="50" step="0.1">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="stcg_rate">STCG Tax Rate (% on gains)</label>
+                                    <input type="number" id="stcg_rate" name="stcg_rate" 
+                                           value="{{ form_data.stcg_rate * 100 }}" 
+                                           min="0" max="50" step="0.1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="calculate-btn">Calculate SIP Returns</button>
+                    </form>
+                </div>
+
+                <div class="results-section">
+                    {% if result %}
+                        <h2 style="margin-bottom: 20px; color: #333;">📊 Your Investment Results</h2>
+                        
+                        <div class="results-grid">
+                            <div class="result-item">
+                                <div class="result-label">Total Invested</div>
+                                <div class="result-value">₹{{ result.total_invested | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item">
+                                <div class="result-label">Gross Corpus (Before Fees & Tax)</div>
+                                <div class="result-value">₹{{ result.gross_corpus | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item">
+                                <div class="result-label">Capital Gains</div>
+                                <div class="result-value">₹{{ result.capital_gains | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item tax">
+                                <div class="result-label">{{ result.tax_type }} Tax ({{ (result.capital_gains_tax / result.capital_gains * 100) | round(1) if result.capital_gains > 0 else 0 }}%)</div>
+                                <div class="result-value">₹{{ result.capital_gains_tax | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item">
+                                <div class="result-label">Fees Paid</div>
+                                <div class="result-value">₹{{ result.fees_paid | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item highlight">
+                                <div class="result-label">Final Corpus (After Tax)</div>
+                                <div class="result-value">₹{{ result.corpus_after_tax | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item">
+                                <div class="result-label">Inflation Adjusted Corpus</div>
+                                <div class="result-value">₹{{ result.inflation_adjusted_final_corpus | with_unit }}</div>
+                            </div>
+                        </div>
+                
+                        {% if chart %}
+                        <div class="chart-container">
+                            <h3 style="margin-bottom: 15px; color: #333;">Corpus Breakdown</h3>
+                            <img src="data:image/png;base64,{{ chart }}" alt="SIP Corpus Breakdown">
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="no-results">
+                            <h2>💡 Enter your SIP details</h2>
+                            <p>Fill in the form to calculate your investment returns with tax considerations.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Global variable for the simple SIP chart instance
+        let simpleSipChartInstance = null;
+
+        // Simple SIP calculation function
+        function calculateSimpleSIP() {
+            const monthlySip = parseFloat(document.getElementById('simple_monthly_sip').value);
+            const annualReturn = parseFloat(document.getElementById('simple_annual_return').value) / 100;
+            const years = parseInt(document.getElementById('simple_years').value);
+            
+            if (!monthlySip || !annualReturn || !years) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const totalMonths = years * 12;
+            const monthlyReturn = Math.pow(1 + annualReturn, 1/12) - 1;
+            
+            let corpus = 0;
+            for (let month = 1; month <= totalMonths; month++) {
+                corpus = (corpus + monthlySip) * (1 + monthlyReturn);
+            }
+            
+            const totalInvested = monthlySip * totalMonths;
+            const totalReturns = corpus - totalInvested;
+            
+            // Format numbers with Indian currency format
+            const formatCurrency = (value) => {
+                const formatted = value.toLocaleString('en-IN', { 
+                    minimumFractionDigits: 0, 
+                    maximumFractionDigits: 0 
+                });
+                
+                let unit = '';
+                if (value >= 10000000) {
+                    unit = ` (${(value / 10000000).toFixed(2)} Cr)`;
+                } else if (value >= 100000) {
+                    unit = ` (${(value / 100000).toFixed(2)} Lakh)`;
+                }
+                
+                return formatted + unit;
+            };
+            
+            // Display results
+            const resultsDiv = document.getElementById('simple-results');
+            resultsDiv.innerHTML = `
+                <h2 style="margin-bottom: 20px; color: #333;">📊 Your SIP Results</h2>
+                <div class="simple-results">
+                    <div class="result-item">
+                        <div class="result-label">Total Invested</div>
+                        <div class="result-value">₹${formatCurrency(totalInvested)}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Total Returns</div>
+                        <div class="result-value">₹${formatCurrency(totalReturns)}</div>
+                    </div>
+                    <div class="result-item highlight">
+                        <div class="result-label">Final Corpus</div>
+                        <div class="result-value">₹${formatCurrency(corpus)}</div>
+                    </div>
+                </div>
+            `;
+
+            // --- Pie Chart Logic ---
+            const chartContainer = document.getElementById('simple-chart-container');
+            const ctx = document.getElementById('simpleSipChart').getContext('2d');
+
+            // Destroy previous chart instance if it exists
+            if (simpleSipChartInstance) {
+                simpleSipChartInstance.destroy();
+            }
+
+            // Make chart container visible
+            chartContainer.style.display = 'block';
+
+            // Create new pie chart
+            simpleSipChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Total Invested', 'Total Returns'],
+                    datasets: [{
+                        label: 'Corpus Breakdown',
+                        data: [totalInvested, totalReturns],
+                        backgroundColor: ['#667eea', '#2ecc71'],
+                        borderColor: ['#ffffff', '#ffffff'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    const value = context.parsed;
+
+                                    // Calculate total for percentage calculation
+                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+
+                                    if (label) { label += ': '; }
+                                    if (value !== null) {
+                                        label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+                                        label += ` (${percentage}%)`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Advanced calculator functions
+        function toggleAdvanced() {
+            const options = document.getElementById('advancedOptions');
+            const arrow = document.querySelector('.arrow');
+            
+            options.classList.toggle('show');
+            arrow.classList.toggle('rotated');
+        }
+
+        // Auto-show advanced options if any advanced field has a value
+        document.addEventListener('DOMContentLoaded', function() {
+            const advancedFields = ['inflation_rate', 'ltcg_rate', 'stcg_rate'];
+            const hasAdvancedValues = advancedFields.some(field => {
+                const input = document.getElementById(field);
+                return input && input.value && parseFloat(input.value) > 0;
+            });
+
+            if (hasAdvancedValues) {
+                toggleAdvanced();
+            }
+        });
+    </script>
 </body>
 </html>

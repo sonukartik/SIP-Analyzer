@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - SIP Calculator{% endblock %}
+
+{% block head_style %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .contact-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .contact-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .contact-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .contact-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .contact-content {
+        padding: 40px;
+    }
+
+    .contact-form {
+        background: #f8f9ff;
+        padding: 30px;
+        border-radius: 10px;
+        border: 1px solid #e1e5f2;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e1e5f2;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .submit-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .contact-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .info-card {
+        background: #f8f9ff;
+        padding: 25px;
+        border-radius: 10px;
+        border: 1px solid #e1e5f2;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .info-card .icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: #667eea;
+    }
+
+    .info-card h3 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+    }
+
+    .info-card p {
+        color: #666;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .success-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #c3e6cb;
+        margin-bottom: 20px;
+        display: none;
+    }
+
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #f5c6cb;
+        margin-bottom: 20px;
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .contact-container {
+            margin: 1rem;
+        }
+
+        .contact-content {
+            padding: 20px;
+        }
+
+        .contact-form {
+            padding: 20px;
+        }
+
+        .contact-header h1 {
+            font-size: 2rem;
+        }
+
+        .info-card {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contact-container">
+    <div class="contact-header">
+        <h1>📞 Contact Us</h1>
+        <p>We'd love to hear from you! Get in touch with any questions or feedback.</p>
+    </div>
+
+    <div class="contact-content">
+        <div id="success-message" class="success-message">
+            Thank you for your message! We'll get back to you soon.
+        </div>
+
+        <div id="error-message" class="error-message">
+            There was an error sending your message. Please try again.
+        </div>
+
+        <div class="contact-form">
+            <h2 style="margin-bottom: 20px; color: #333;">💬 Send us a Message</h2>
+            <form id="contact-form" onsubmit="handleSubmit(event)">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Subject *</label>
+                    <select id="subject" name="subject" required>
+                        <option value="">Select a subject</option>
+                        <option value="general">General Inquiry</option>
+                        <option value="bug">Bug Report</option>
+                        <option value="feature">Feature Request</option>
+                        <option value="feedback">Feedback</option>
+                        <option value="support">Technical Support</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message *</label>
+                    <textarea id="message" name="message" placeholder="Please describe your inquiry in detail..." required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Send Message</button>
+            </form>
+        </div>
+
+        <div class="contact-info">
+            <div class="info-card">
+                <div class="icon">🌐</div>
+                <h3>Website</h3>
+                <p>Visit our SIP Calculator for all your investment planning needs</p>
+            </div>
+
+            <div class="info-card">
+                <div class="icon">⚡</div>
+                <h3>Quick Response</h3>
+                <p>We typically respond to inquiries within 24-48 hours</p>
+            </div>
+
+            <div class="info-card">
+                <div class="icon">🔒</div>
+                <h3>Privacy</h3>
+                <p>Your information is secure and will never be shared with third parties</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffeaa7;">
+            <h3 style="color: #856404; margin-bottom: 10px;">📋 Before You Contact Us</h3>
+            <p style="color: #856404; margin: 0; line-height: 1.6;">
+                <strong>Please note:</strong> This SIP calculator is for educational purposes only and should not be considered as financial advice. 
+                For professional investment guidance, please consult with a qualified financial advisor.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+function handleSubmit(event) {
+    event.preventDefault();
+    
+    // Get form elements
+    const form = document.getElementById('contact-form');
+    const successMessage = document.getElementById('success-message');
+    const errorMessage = document.getElementById('error-message');
+    
+    // Hide any existing messages
+    successMessage.style.display = 'none';
+    errorMessage.style.display = 'none';
+    
+    // Get form data
+    const formData = new FormData(form);
+    const data = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        subject: formData.get('subject'),
+        message: formData.get('message')
+    };
+    
+    // Simulate form submission (since this is a demo)
+    // In a real application, you would send this to your backend
+    setTimeout(() => {
+        try {
+            // Simulate successful submission
+            successMessage.style.display = 'block';
+            form.reset();
+            
+            // Scroll to success message
+            successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Log the form data (in real app, this would be sent to server)
+            console.log('Contact form submitted:', data);
+            
+        } catch (error) {
+            errorMessage.style.display = 'block';
+            errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 1000);
+}
+</script>
+{% endblock %}

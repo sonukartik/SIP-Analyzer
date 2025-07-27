@@ -11,6 +11,10 @@ app = Flask(__name__)
 @app.route("/terms")
 def terms():
     return render_template("terms.html")
+
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
     
 @app.route('/googled31b5d709c031016.html')
 def google_verify():
@@ -26,6 +30,16 @@ def robots_txt():
         "Allow: /"
     ]
     return "\n".join(lines), 200, {'Content-Type': 'text/plain'}
+
+@app.route('/ads.txt')
+def ads_txt():
+    content = "google.com, pub-3229320652703762, DIRECT, f08c47fec0942fa0"
+    return content, 200, {'Content-Type': 'text/plain'}
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
 
 # Utility function to format with Lakhs/Cr
 def format_full_with_unit(value):
@@ -70,7 +84,9 @@ def calculate_sip(monthly_sip, annual_return, expense_ratio, years, inflation_ra
     # Calculate capital gains tax based on investment duration
     if years > 1:
         # Long Term Capital Gains (LTCG) - applies after 1 year
-        capital_gains_tax = capital_gains * ltcg_rate
+        # LTCG is taxed on gains exceeding Rs. 1 Lakh per financial year.
+        taxable_ltcg = max(0, capital_gains - 100000)
+        capital_gains_tax = taxable_ltcg * ltcg_rate
         tax_type = "LTCG"
     else:
         # Short Term Capital Gains (STCG) - applies for investments <= 1 year

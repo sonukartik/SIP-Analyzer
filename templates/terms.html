@@ -1,51 +1,159 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Terms and Conditions - SIP Calculator</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: #f8f9fa;
-            font-family: 'Segoe UI', sans-serif;
+{% extends "base.html" %}
+
+{% block title %}Terms and Conditions - SIP Calculator{% endblock %}
+
+{% block head_style %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .terms-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .terms-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .terms-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .terms-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .terms-content {
+        padding: 40px;
+        line-height: 1.8;
+    }
+
+    .terms-content h2 {
+        color: #333;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        font-weight: 600;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 8px;
+    }
+
+    .terms-content h2:first-of-type {
+        margin-top: 0;
+    }
+
+    .terms-content h4 {
+        color: #333;
+        margin-top: 25px;
+        margin-bottom: 12px;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .terms-content p {
+        color: #555;
+        margin-bottom: 15px;
+        text-align: justify;
+    }
+
+    .terms-content a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .terms-content a:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .intro-text {
+        background: #f8f9ff;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        margin-bottom: 25px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .last-updated {
+        background: #fff3cd;
+        color: #856404;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #ffc107;
+        margin-top: 30px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
+        .terms-container {
+            margin: 1rem;
         }
-        .container {
-            max-width: 900px;
-            padding: 2rem;
-            background: white;
-            margin-top: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+
+        .terms-content {
+            padding: 20px;
         }
-    </style>
-</head>
-<body>
 
-<div class="container">
-    <h1 class="mb-4 text-primary">Terms and Conditions</h1>
+        .terms-header h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
 
-    <p>By accessing and using the SIP Calculator website, you agree to the following terms and conditions:</p>
+{% block content %}
+<div class="terms-container">
+    <div class="terms-header">
+        <h1>📋 Terms and Conditions</h1>
+        <p>Please read these terms carefully before using our service</p>
+    </div>
 
-    <h4 class="mt-4">1. Use of the Website</h4>
-    <p>This website is provided for informational and educational purposes only. The investment calculations and visuals are approximate and should not be treated as financial advice.</p>
+    <div class="terms-content">
+        <div class="intro-text">
+            By accessing and using the SIP Calculator website, you agree to the following terms and conditions:
+        </div>
 
-    <h4 class="mt-4">2. No Financial Advice</h4>
-    <p>We are not licensed financial advisors. Please consult with a certified professional before making investment decisions.</p>
+        <h4>1. Use of the Website</h4>
+        <p>This website is provided for informational and educational purposes only. The investment calculations and visuals are approximate and should not be treated as financial advice.</p>
 
-    <h4 class="mt-4">3. Third-Party Ads</h4>
-    <p>This website may display advertisements via Google AdSense. We are not responsible for the content or practices of those third-party websites or services.</p>
+        <h4>2. No Financial Advice</h4>
+        <p>We are not licensed financial advisors. Please consult with a certified professional before making investment decisions.</p>
 
-    <h4 class="mt-4">4. Limitation of Liability</h4>
-    <p>We are not liable for any direct or indirect damages arising from your use of this website, including investment losses.</p>
+        <h4>3. Third-Party Ads</h4>
+        <p>This website may display advertisements via Google AdSense. We are not responsible for the content or practices of those third-party websites or services.</p>
 
-    <h4 class="mt-4">5. Changes to Terms</h4>
-    <p>We reserve the right to modify these Terms at any time. Your continued use of the website signifies acceptance of any updated Terms.</p>
+        <h4>4. Limitation of Liability</h4>
+        <p>We are not liable for any direct or indirect damages arising from your use of this website, including investment losses.</p>
 
-    <h4 class="mt-4">6. Governing Law</h4>
-    <p>These terms are governed by and construed in accordance with applicable local laws.</p>
+        <h4>5. Changes to Terms</h4>
+        <p>We reserve the right to modify these Terms at any time. Your continued use of the website signifies acceptance of any updated Terms.</p>
 
-    <p class="mt-5 text-muted">Last updated: May 18, 2025</p>
+        <h4>6. Governing Law</h4>
+        <p>These terms are governed by and construed in accordance with applicable local laws.</p>
+
+        <h4>7. Contact Information</h4>
+        <p>If you have any questions about these Terms and Conditions, please contact us through our <a href="{{ url_for('contact') }}">Contact Us page</a>.</p>
+
+        <div class="last-updated">
+            Last updated: May 18, 2025
+        </div>
+    </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

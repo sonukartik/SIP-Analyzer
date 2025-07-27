@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - SIP Calculator{% endblock %}
+
+{% block head_style %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .privacy-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .privacy-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .privacy-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .privacy-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .privacy-content {
+        padding: 40px;
+        line-height: 1.8;
+    }
+
+    .privacy-content h2 {
+        color: #333;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        font-weight: 600;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 8px;
+    }
+
+    .privacy-content h2:first-of-type {
+        margin-top: 0;
+    }
+
+    .privacy-content p {
+        color: #555;
+        margin-bottom: 15px;
+        text-align: justify;
+    }
+
+    .privacy-content a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .privacy-content a:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .last-updated {
+        background: #f8f9ff;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        margin-bottom: 20px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    @media (max-width: 768px) {
+        .privacy-container {
+            margin: 1rem;
+        }
+
+        .privacy-content {
+            padding: 20px;
+        }
+
+        .privacy-header h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="privacy-container">
+    <div class="privacy-header">
+        <h1>🔒 Privacy Policy</h1>
+        <p>Your privacy and data protection are our top priorities</p>
+    </div>
+
+    <div class="privacy-content">
+        <div class="last-updated">
+            <strong>Last updated:</strong> October 26, 2023
+        </div>
+
+        <h2>Introduction</h2>
+        <p>
+            Our SIP Calculator application ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application. Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.
+        </p>
+
+        <h2>Information We Collect</h2>
+        <p>
+            We do not collect any personally identifiable information (PII) from our users. The financial calculations you perform using the SIP calculator are processed in your browser and are not stored on our servers or seen by us.
+        </p>
+
+        <h2>Third-Party Advertising and Cookies</h2>
+        <p>
+            We use third-party advertising companies, like Google AdSense, to serve ads when you visit our website. These companies may use information (not including your name, address, email address, or telephone number) about your visits to this and other websites in order to provide advertisements about goods and services of interest to you.
+        </p>
+        <p>
+            Google, as a third-party vendor, uses cookies to serve ads on our site. Google's use of the DART cookie enables it to serve ads to our users based on their visit to our sites and other sites on the Internet. Users may opt out of the use of the DART cookie by visiting the <a href="https://policies.google.com/technologies/ads" target="_blank">Google ad and content network privacy policy</a>.
+        </p>
+
+        <h2>Changes to This Privacy Policy</h2>
+        <p>
+            We reserve the right to make changes to this Privacy Policy at any time and for any reason. We will alert you about any changes by updating the "Last updated" date of this Privacy Policy. You are encouraged to periodically review this Privacy Policy to stay informed of updates.
+        </p>
+
+        <h2>Contact Us</h2>
+        <p>
+            If you have questions or comments about this Privacy Policy, please contact us through our <a href="{{ url_for('contact') }}">Contact Us page</a>. We're here to help address any privacy concerns you may have.
+        </p>
+    </div>
+</div>
+{% endblock %}

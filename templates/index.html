@@ -1,31 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIP Calculator with Tax Planning</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% extends "base.html" %}
+
+{% block title %}SIP Calculator with Tax Planning{% endblock %}
+
+{% block head_style %}
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
+            /* Re-add flex properties from base.html to keep footer at bottom */
+            display: flex;
+            flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
         }
 
         .header {
@@ -89,6 +80,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 40px;
+            align-items: start;
             padding: 40px;
         }
 
@@ -288,9 +280,10 @@
             font-size: 28px;
         }
     </style>
-</head>
-<body>
-    <div class="container">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
         <div class="header">
             <h1>🎯 SIP Calculator</h1>
             <p>Plan your investments with tax considerations</p>
@@ -438,7 +431,7 @@
                             </div>
 
                             <div class="result-item tax">
-                                <div class="result-label">{{ result.tax_type }} Tax ({{ (result.capital_gains_tax / result.capital_gains * 100) | round(1) if result.capital_gains > 0 else 0 }}%)</div>
+                                <div class="result-label">{{ result.tax_type }} Tax</div>
                                 <div class="result-value">₹{{ result.capital_gains_tax | with_unit }}</div>
                             </div>
 
@@ -473,162 +466,160 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        // Tab switching functionality
-        function switchTab(tabName) {
-            // Hide all tab contents
-            const tabContents = document.querySelectorAll('.tab-content');
-            tabContents.forEach(content => content.classList.remove('active'));
+<script>
+    // Tab switching functionality
+    function switchTab(tabName) {
+        // Hide all tab contents
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        // Remove active class from all tab buttons
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Show selected tab content
+        document.getElementById(tabName + '-tab').classList.add('active');
+        
+        // Add active class to clicked button
+        event.target.classList.add('active');
+    }
+
+    // Global variable for the simple SIP chart instance
+    let simpleSipChartInstance = null;
+
+    // Simple SIP calculation function
+    function calculateSimpleSIP() {
+        const monthlySip = parseFloat(document.getElementById('simple_monthly_sip').value);
+        const annualReturn = parseFloat(document.getElementById('simple_annual_return').value) / 100;
+        const years = parseInt(document.getElementById('simple_years').value);
+        
+        if (!monthlySip || !annualReturn || !years) {
+            alert('Please fill in all fields');
+            return;
+        }
+        
+        const totalMonths = years * 12;
+        const monthlyReturn = Math.pow(1 + annualReturn, 1/12) - 1;
+        
+        let corpus = 0;
+        for (let month = 1; month <= totalMonths; month++) {
+            corpus = (corpus + monthlySip) * (1 + monthlyReturn);
+        }
+        
+        const totalInvested = monthlySip * totalMonths;
+        const totalReturns = corpus - totalInvested;
+        
+        // Format numbers with Indian currency format
+        const formatCurrency = (value) => {
+            const formatted = value.toLocaleString('en-IN', { 
+                minimumFractionDigits: 0, 
+                maximumFractionDigits: 0 
+            });
             
-            // Remove active class from all tab buttons
-            const tabButtons = document.querySelectorAll('.tab-btn');
-            tabButtons.forEach(btn => btn.classList.remove('active'));
+            let unit = '';
+            if (value >= 10000000) {
+                unit = ` (${(value / 10000000).toFixed(2)} Cr)`;
+            } else if (value >= 100000) {
+                unit = ` (${(value / 100000).toFixed(2)} Lakh)`;
+            }
             
-            // Show selected tab content
-            document.getElementById(tabName + '-tab').classList.add('active');
-            
-            // Add active class to clicked button
-            event.target.classList.add('active');
+            return formatted + unit;
+        };
+        
+        // Display results
+        const resultsDiv = document.getElementById('simple-results');
+        resultsDiv.innerHTML = `
+            <h2 style="margin-bottom: 20px; color: #333;">📊 Your SIP Results</h2>
+            <div class="simple-results">
+                <div class="result-item">
+                    <div class="result-label">Total Invested</div>
+                    <div class="result-value">₹${formatCurrency(totalInvested)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Total Returns</div>
+                    <div class="result-value">₹${formatCurrency(totalReturns)}</div>
+                </div>
+                <div class="result-item highlight">
+                    <div class="result-label">Final Corpus</div>
+                    <div class="result-value">₹${formatCurrency(corpus)}</div>
+                </div>
+            </div>
+        `;
+
+        // --- Pie Chart Logic ---
+        const chartContainer = document.getElementById('simple-chart-container');
+        const ctx = document.getElementById('simpleSipChart').getContext('2d');
+
+        // Destroy previous chart instance if it exists
+        if (simpleSipChartInstance) {
+            simpleSipChartInstance.destroy();
         }
 
-        // Global variable for the simple SIP chart instance
-        let simpleSipChartInstance = null;
+        // Make chart container visible
+        chartContainer.style.display = 'block';
 
-        // Simple SIP calculation function
-        function calculateSimpleSIP() {
-            const monthlySip = parseFloat(document.getElementById('simple_monthly_sip').value);
-            const annualReturn = parseFloat(document.getElementById('simple_annual_return').value) / 100;
-            const years = parseInt(document.getElementById('simple_years').value);
-            
-            if (!monthlySip || !annualReturn || !years) {
-                alert('Please fill in all fields');
-                return;
-            }
-            
-            const totalMonths = years * 12;
-            const monthlyReturn = Math.pow(1 + annualReturn, 1/12) - 1;
-            
-            let corpus = 0;
-            for (let month = 1; month <= totalMonths; month++) {
-                corpus = (corpus + monthlySip) * (1 + monthlyReturn);
-            }
-            
-            const totalInvested = monthlySip * totalMonths;
-            const totalReturns = corpus - totalInvested;
-            
-            // Format numbers with Indian currency format
-            const formatCurrency = (value) => {
-                const formatted = value.toLocaleString('en-IN', { 
-                    minimumFractionDigits: 0, 
-                    maximumFractionDigits: 0 
-                });
-                
-                let unit = '';
-                if (value >= 10000000) {
-                    unit = ` (${(value / 10000000).toFixed(2)} Cr)`;
-                } else if (value >= 100000) {
-                    unit = ` (${(value / 100000).toFixed(2)} Lakh)`;
-                }
-                
-                return formatted + unit;
-            };
-            
-            // Display results
-            const resultsDiv = document.getElementById('simple-results');
-            resultsDiv.innerHTML = `
-                <h2 style="margin-bottom: 20px; color: #333;">📊 Your SIP Results</h2>
-                <div class="simple-results">
-                    <div class="result-item">
-                        <div class="result-label">Total Invested</div>
-                        <div class="result-value">₹${formatCurrency(totalInvested)}</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Total Returns</div>
-                        <div class="result-value">₹${formatCurrency(totalReturns)}</div>
-                    </div>
-                    <div class="result-item highlight">
-                        <div class="result-label">Final Corpus</div>
-                        <div class="result-value">₹${formatCurrency(corpus)}</div>
-                    </div>
-                </div>
-            `;
+        // Create new pie chart
+        simpleSipChartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Total Invested', 'Total Returns'],
+                datasets: [{
+                    label: 'Corpus Breakdown',
+                    data: [totalInvested, totalReturns],
+                    backgroundColor: ['#667eea', '#2ecc71'],
+                    borderColor: ['#ffffff', '#ffffff'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                const value = context.parsed;
 
-            // --- Pie Chart Logic ---
-            const chartContainer = document.getElementById('simple-chart-container');
-            const ctx = document.getElementById('simpleSipChart').getContext('2d');
+                                // Calculate total for percentage calculation
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
 
-            // Destroy previous chart instance if it exists
-            if (simpleSipChartInstance) {
-                simpleSipChartInstance.destroy();
-            }
-
-            // Make chart container visible
-            chartContainer.style.display = 'block';
-
-            // Create new pie chart
-            simpleSipChartInstance = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Total Invested', 'Total Returns'],
-                    datasets: [{
-                        label: 'Corpus Breakdown',
-                        data: [totalInvested, totalReturns],
-                        backgroundColor: ['#667eea', '#2ecc71'],
-                        borderColor: ['#ffffff', '#ffffff'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    const value = context.parsed;
-
-                                    // Calculate total for percentage calculation
-                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
-
-                                    if (label) { label += ': '; }
-                                    if (value !== null) {
-                                        label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
-                                        label += ` (${percentage}%)`;
-                                    }
-                                    return label;
+                                if (label) { label += ': '; }
+                                if (value !== null) {
+                                    label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+                                    label += ` (${percentage}%)`;
                                 }
+                                return label;
                             }
                         }
                     }
                 }
-            });
-        }
-
-        // Advanced calculator functions
-        function toggleAdvanced() {
-            const options = document.getElementById('advancedOptions');
-            const arrow = document.querySelector('.arrow');
-            
-            options.classList.toggle('show');
-            arrow.classList.toggle('rotated');
-        }
-
-        // Auto-show advanced options if any advanced field has a value
-        document.addEventListener('DOMContentLoaded', function() {
-            const advancedFields = ['inflation_rate', 'ltcg_rate', 'stcg_rate'];
-            const hasAdvancedValues = advancedFields.some(field => {
-                const input = document.getElementById(field);
-                return input && input.value && parseFloat(input.value) > 0;
-            });
-
-            if (hasAdvancedValues) {
-                toggleAdvanced();
             }
         });
-    </script>
-</body>
-</html>
+    }
+
+    // Advanced calculator functions
+    function toggleAdvanced() {
+        const options = document.getElementById('advancedOptions');
+        const arrow = document.querySelector('.arrow');
+        
+        options.classList.toggle('show');
+        arrow.classList.toggle('rotated');
+    }
+
+    // Auto-show advanced options if any advanced field has a value
+    document.addEventListener('DOMContentLoaded', function() {
+        const advancedFields = ['inflation_rate', 'ltcg_rate', 'stcg_rate'];
+        const hasAdvancedValues = advancedFields.some(field => {
+            const input = document.getElementById(field);
+            return input && input.value && parseFloat(input.value) > 0;
+        });
+
+        if (hasAdvancedValues) {
+            toggleAdvanced();
+        }
+    });
+</script>
+{% endblock %}

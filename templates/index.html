@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}SIP Calculator with Tax Planning{% endblock %}
+{% block title %}SIP & Lumpsum Calculator with Tax Planning{% endblock %}
 
 {% block head_style %}
     <style>
@@ -89,6 +89,32 @@
             padding: 30px;
             border-radius: 10px;
             border: 1px solid #e1e5f2;
+        }
+
+        .calculator-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 5px;
+            background: #e1e5f2;
+            border-radius: 8px;
+        }
+
+        .calc-type-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: #666;
+        }
+
+        .calc-type-btn.active {
+            background: #667eea;
+            color: white;
         }
 
         .form-group {
@@ -242,6 +268,11 @@
             padding: 40px;
         }
 
+        .calculator-icon {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
         @media (max-width: 768px) {
             .content {
                 grid-template-columns: 1fr;
@@ -261,6 +292,10 @@
                 padding: 15px 20px;
                 font-size: 14px;
             }
+
+            .calculator-type-selector {
+                flex-direction: column;
+            }
         }
 
         .arrow {
@@ -279,77 +314,151 @@
         .simple-results .result-value {
             font-size: 28px;
         }
+
+        .simple-calc-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 5px;
+            background: #e1e5f2;
+            border-radius: 8px;
+        }
+
+        .simple-calc-type-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: #666;
+        }
+
+        .simple-calc-type-btn.active {
+            background: #667eea;
+            color: white;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block content %}
         <div class="header">
-            <h1>🎯 SIP Calculator</h1>
-            <p>Plan your investments with tax considerations</p>
+            <h1>🎯 Investment Calculator</h1>
+            <p>Plan your SIP & Lumpsum investments with tax considerations</p>
         </div>
 
         <!-- Tab Navigation -->
         <div class="tab-navigation">
-            <button class="tab-btn {% if not result %}active{% endif %}" onclick="switchTab('simple')">Simple SIP Calculator</button>
-            <button class="tab-btn {% if result %}active{% endif %}" onclick="switchTab('advanced')">Advanced SIP Calculator</button>
+            <button class="tab-btn {% if not result %}active{% endif %}" onclick="switchTab('simple')">Simple Calculator</button>
+            <button class="tab-btn {% if result %}active{% endif %}" onclick="switchTab('advanced')">Advanced Calculator</button>
         </div>
 
-        <!-- Simple SIP Calculator Tab -->
+        <!-- Simple Calculator Tab -->
         <div id="simple-tab" class="tab-content {% if not result %}active{% endif %}">
             <div class="content">
                 <div class="form-section">
-                    <h2 style="margin-bottom: 20px; color: #333;">📈 Simple SIP Calculator</h2>
-                    <form id="simple-form">
-            <div class="form-group">
-                            <label for="simple_monthly_sip">Monthly SIP Amount (₹)</label>
-                            <input type="number" id="simple_monthly_sip" name="simple_monthly_sip" 
-                                   value="5000" required min="100" step="100">
-            </div>
+                    <h2 style="margin-bottom: 20px; color: #333;">📈 Simple Investment Calculator</h2>
+                    
+                    <!-- Calculator Type Selector -->
+                    <div class="simple-calc-type-selector">
+                        <button type="button" class="simple-calc-type-btn active" onclick="switchSimpleCalculator('sip')">
+                            <span class="calculator-icon">📊</span> SIP Calculator
+                        </button>
+                        <button type="button" class="simple-calc-type-btn" onclick="switchSimpleCalculator('lumpsum')">
+                            <span class="calculator-icon">💰</span> Lumpsum Calculator
+                        </button>
+                    </div>
 
-            <div class="form-group">
+                    <form id="simple-form">
+                        <div id="sip-simple-fields">
+                            <div class="form-group">
+                                <label for="simple_monthly_sip">Monthly SIP Amount (₹)</label>
+                                <input type="number" id="simple_monthly_sip" name="simple_monthly_sip" 
+                                       value="5000" required min="100" step="100">
+                            </div>
+                        </div>
+
+                        <div id="lumpsum-simple-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="simple_lumpsum_amount">Lumpsum Investment Amount (₹)</label>
+                                <input type="number" id="simple_lumpsum_amount" name="simple_lumpsum_amount" 
+                                       value="100000" required min="1000" step="1000">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label for="simple_annual_return">Expected Annual Return (%)</label>
                             <input type="number" id="simple_annual_return" name="simple_annual_return" 
                                    value="12" required min="1" max="30" step="0.1">
-            </div>
+                        </div>
 
-            <div class="form-group">
+                        <div class="form-group">
                             <label for="simple_years">Investment Period (Years)</label>
                             <input type="number" id="simple_years" name="simple_years" 
                                    value="10" required min="1" max="50">
                         </div>
 
-                        <button type="button" class="calculate-btn" onclick="calculateSimpleSIP()">Calculate SIP Returns</button>
+                        <input type="hidden" id="simple_calculator_type" value="sip">
+                        <button type="button" class="calculate-btn" onclick="calculateSimple()">Calculate Returns</button>
                     </form>
                 </div>
 
                 <div class="results-section">
                     <div id="simple-results">
                         <div class="no-results">
-                            <h2>💡 Enter your SIP details</h2>
-                            <p>Fill in the form to calculate your basic SIP returns.</p>
+                            <h2>💡 Enter your investment details</h2>
+                            <p>Fill in the form to calculate your investment returns.</p>
                         </div>
                     </div>
                     <div id="simple-chart-container" class="chart-container" style="display: none;">
-                        <h3 style="margin-bottom: 15px; color: #333;">Corpus Breakdown</h3>
-                        <canvas id="simpleSipChart"></canvas>
+                        <h3 style="margin-bottom: 15px; color: #333;">Investment Breakdown</h3>
+                        <canvas id="simpleChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Advanced SIP Calculator Tab -->
+        <!-- Advanced Calculator Tab -->
         <div id="advanced-tab" class="tab-content {% if result %}active{% endif %}">
             <div class="content">
                 <div class="form-section">
-                    <h2 style="margin-bottom: 20px; color: #333;">🔧 Advanced SIP Calculator</h2>
+                    <h2 style="margin-bottom: 20px; color: #333;">🔧 Advanced Investment Calculator</h2>
+                    
                     <form method="POST">
-                        <div class="form-group">
-                            <label for="monthly_sip">Monthly SIP Amount (₹)</label>
-                            <input type="number" id="monthly_sip" name="monthly_sip" 
-                                   value="{{ form_data.monthly_sip }}" required min="100" step="100">
+                        <!-- Calculator Type Selector -->
+                        <div class="calculator-type-selector">
+                            <button type="button" class="calc-type-btn {% if calculator_type == 'sip' %}active{% endif %}" onclick="switchCalculator('sip')">
+                                <span class="calculator-icon">📊</span> SIP Calculator
+                            </button>
+                            <button type="button" class="calc-type-btn {% if calculator_type == 'lumpsum' %}active{% endif %}" onclick="switchCalculator('lumpsum')">
+                                <span class="calculator-icon">💰</span> Lumpsum Calculator
+                            </button>
                         </div>
 
+                        <input type="hidden" name="calculator_type" id="calculator_type" value="{{ calculator_type }}">
+
+                        <!-- SIP Fields -->
+                        <div id="sip-fields" {% if calculator_type != 'sip' %}style="display: none;"{% endif %}>
+                            <div class="form-group">
+                                <label for="monthly_sip">Monthly SIP Amount (₹)</label>
+                                <input type="number" id="monthly_sip" name="monthly_sip" 
+                                       value="{{ form_data.monthly_sip }}" min="100" step="100">
+                            </div>
+                        </div>
+
+                        <!-- Lumpsum Fields -->
+                        <div id="lumpsum-fields" {% if calculator_type != 'lumpsum' %}style="display: none;"{% endif %}>
+                            <div class="form-group">
+                                <label for="lumpsum_amount">Lumpsum Investment Amount (₹)</label>
+                                <input type="number" id="lumpsum_amount" name="lumpsum_amount" 
+                                       value="{{ form_data.lumpsum_amount }}" min="1000" step="1000">
+                            </div>
+                        </div>
+
+                        <!-- Common Fields -->
                         <div class="form-group">
                             <label for="annual_return">Expected Annual Return (%)</label>
                             <input type="number" id="annual_return" name="annual_return" 
@@ -406,7 +515,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="calculate-btn">Calculate SIP Returns</button>
+                        <button type="submit" class="calculate-btn">Calculate Investment Returns</button>
                     </form>
                 </div>
 
@@ -453,13 +562,13 @@
                 
                         {% if chart %}
                         <div class="chart-container">
-                            <h3 style="margin-bottom: 15px; color: #333;">Corpus Breakdown</h3>
-                            <img src="data:image/png;base64,{{ chart }}" alt="SIP Corpus Breakdown">
+                            <h3 style="margin-bottom: 15px; color: #333;">Investment Breakdown</h3>
+                            <img src="data:image/png;base64,{{ chart }}" alt="Investment Corpus Breakdown">
                         </div>
                         {% endif %}
                     {% else %}
                         <div class="no-results">
-                            <h2>💡 Enter your SIP details</h2>
+                            <h2>💡 Enter your investment details</h2>
                             <p>Fill in the form to calculate your investment returns with tax considerations.</p>
                         </div>
                     {% endif %}
@@ -485,30 +594,104 @@
         event.target.classList.add('active');
     }
 
-    // Global variable for the simple SIP chart instance
-    let simpleSipChartInstance = null;
+    // Advanced calculator type switching
+    function switchCalculator(type) {
+        // Update hidden input
+        document.getElementById('calculator_type').value = type;
+        
+        // Switch button styles
+        const buttons = document.querySelectorAll('.calc-type-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        // Show/hide appropriate fields
+        const sipFields = document.getElementById('sip-fields');
+        const lumpsumFields = document.getElementById('lumpsum-fields');
+        
+        if (type === 'sip') {
+            sipFields.style.display = 'block';
+            lumpsumFields.style.display = 'none';
+            // Make SIP field required
+            document.getElementById('monthly_sip').required = true;
+            document.getElementById('lumpsum_amount').required = false;
+        } else {
+            sipFields.style.display = 'none';
+            lumpsumFields.style.display = 'block';
+            // Make lumpsum field required
+            document.getElementById('monthly_sip').required = false;
+            document.getElementById('lumpsum_amount').required = true;
+        }
+    }
 
-    // Simple SIP calculation function
-    function calculateSimpleSIP() {
-        const monthlySip = parseFloat(document.getElementById('simple_monthly_sip').value);
+    // Simple calculator type switching
+    function switchSimpleCalculator(type) {
+        // Update hidden input
+        document.getElementById('simple_calculator_type').value = type;
+        
+        // Switch button styles
+        const buttons = document.querySelectorAll('.simple-calc-type-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        // Show/hide appropriate fields
+        const sipFields = document.getElementById('sip-simple-fields');
+        const lumpsumFields = document.getElementById('lumpsum-simple-fields');
+        
+        if (type === 'sip') {
+            sipFields.style.display = 'block';
+            lumpsumFields.style.display = 'none';
+        } else {
+            sipFields.style.display = 'none';
+            lumpsumFields.style.display = 'block';
+        }
+        
+        // Update calculate button text
+        const calcBtn = document.querySelector('#simple-form .calculate-btn');
+        calcBtn.textContent = type === 'sip' ? 'Calculate SIP Returns' : 'Calculate Lumpsum Returns';
+    }
+
+    // Global variable for the simple chart instance
+    let simpleChartInstance = null;
+
+    // Simple calculation function
+    function calculateSimple() {
+        const calculatorType = document.getElementById('simple_calculator_type').value;
         const annualReturn = parseFloat(document.getElementById('simple_annual_return').value) / 100;
         const years = parseInt(document.getElementById('simple_years').value);
         
-        if (!monthlySip || !annualReturn || !years) {
-            alert('Please fill in all fields');
-            return;
+        let totalInvested, corpus, totalReturns;
+        
+        if (calculatorType === 'sip') {
+            const monthlySip = parseFloat(document.getElementById('simple_monthly_sip').value);
+            
+            if (!monthlySip || !annualReturn || !years) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const totalMonths = years * 12;
+            const monthlyReturn = Math.pow(1 + annualReturn, 1/12) - 1;
+            
+            corpus = 0;
+            for (let month = 1; month <= totalMonths; month++) {
+                corpus = (corpus + monthlySip) * (1 + monthlyReturn);
+            }
+            
+            totalInvested = monthlySip * totalMonths;
+            
+        } else { // lumpsum
+            const lumpsumAmount = parseFloat(document.getElementById('simple_lumpsum_amount').value);
+            
+            if (!lumpsumAmount || !annualReturn || !years) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            totalInvested = lumpsumAmount;
+            corpus = lumpsumAmount * Math.pow(1 + annualReturn, years);
         }
         
-        const totalMonths = years * 12;
-        const monthlyReturn = Math.pow(1 + annualReturn, 1/12) - 1;
-        
-        let corpus = 0;
-        for (let month = 1; month <= totalMonths; month++) {
-            corpus = (corpus + monthlySip) * (1 + monthlyReturn);
-        }
-        
-        const totalInvested = monthlySip * totalMonths;
-        const totalReturns = corpus - totalInvested;
+        totalReturns = corpus - totalInvested;
         
         // Format numbers with Indian currency format
         const formatCurrency = (value) => {
@@ -529,8 +712,10 @@
         
         // Display results
         const resultsDiv = document.getElementById('simple-results');
+        const calculatorName = calculatorType === 'sip' ? 'SIP' : 'Lumpsum';
+        
         resultsDiv.innerHTML = `
-            <h2 style="margin-bottom: 20px; color: #333;">📊 Your SIP Results</h2>
+            <h2 style="margin-bottom: 20px; color: #333;">📊 Your ${calculatorName} Results</h2>
             <div class="simple-results">
                 <div class="result-item">
                     <div class="result-label">Total Invested</div>
@@ -547,25 +732,25 @@
             </div>
         `;
 
-        // --- Pie Chart Logic ---
+        // Create pie chart
         const chartContainer = document.getElementById('simple-chart-container');
-        const ctx = document.getElementById('simpleSipChart').getContext('2d');
+        const ctx = document.getElementById('simpleChart').getContext('2d');
 
         // Destroy previous chart instance if it exists
-        if (simpleSipChartInstance) {
-            simpleSipChartInstance.destroy();
+        if (simpleChartInstance) {
+            simpleChartInstance.destroy();
         }
 
         // Make chart container visible
         chartContainer.style.display = 'block';
 
         // Create new pie chart
-        simpleSipChartInstance = new Chart(ctx, {
+        simpleChartInstance = new Chart(ctx, {
             type: 'pie',
             data: {
                 labels: ['Total Invested', 'Total Returns'],
                 datasets: [{
-                    label: 'Corpus Breakdown',
+                    label: 'Investment Breakdown',
                     data: [totalInvested, totalReturns],
                     backgroundColor: ['#667eea', '#2ecc71'],
                     borderColor: ['#ffffff', '#ffffff'],

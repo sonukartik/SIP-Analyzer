@@ -171,6 +171,38 @@ def calculate_lumpsum(lumpsum_amount, annual_return, expense_ratio, years, infla
     }
 
 
+def calculate_fd(principal_amount, annual_interest_rate, years, compounding_frequency):
+    """Calculate Fixed Deposit returns - simplified version without tax calculations"""
+    
+    # Convert frequency string to number
+    frequency_map = {
+        'yearly': 1,
+        'half-yearly': 2, 
+        'quarterly': 4,
+        'monthly': 12,
+        'daily': 365
+    }
+    
+    n = frequency_map.get(compounding_frequency, 4)  # Default to quarterly
+    
+    # Calculate maturity amount using compound interest formula
+    # A = P(1 + r/n)^(nt)
+    maturity_amount = principal_amount * ((1 + annual_interest_rate / n) ** (n * years))
+    
+    # Calculate interest earned
+    interest_earned = maturity_amount - principal_amount
+    
+    # Calculate effective annual rate
+    effective_rate = ((maturity_amount / principal_amount) ** (1 / years) - 1) * 100
+    
+    return {
+        "principal_amount": round(principal_amount, 2),
+        "maturity_amount": round(maturity_amount, 2),
+        "interest_earned": round(interest_earned, 2),
+        "effective_rate": round(effective_rate, 2)
+    }
+
+
 def create_pie_chart(total_invested, net_return, fees_paid, capital_gains_tax):
     labels = ['Invested Amount', 'Net Return', 'Fees', 'Capital Gains Tax']
     values = [total_invested, net_return, fees_paid, capital_gains_tax]
@@ -199,64 +231,119 @@ def create_pie_chart(total_invested, net_return, fees_paid, capital_gains_tax):
     return chart_data
 
 
+def create_fd_pie_chart(principal_amount, interest_earned):
+    """Create a simple pie chart for FD showing principal and interest"""
+    labels = ['Principal Amount', 'Interest Earned']
+    values = [principal_amount, interest_earned]
+    colors = ['#3498db', '#2ecc71']
+    
+    if interest_earned > 0:
+        plt.figure(figsize=(8, 8))
+        plt.pie(values, labels=labels, autopct='%1.1f%%', colors=colors, startangle=140)
+        plt.title("Fixed Deposit Breakdown")
+    else:
+        plt.figure(figsize=(8, 8))
+        plt.text(0.5, 0.5, 'No data to display', ha='center', va='center', transform=plt.gca().transAxes)
+        plt.title("Fixed Deposit Breakdown")
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=150)
+    buf.seek(0)
+    chart_data = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+    plt.close()
+    return chart_data
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     result = None
     chart = None
     form_data = {}
     active_tab = "simple"  # Default to simple tab
-    calculator_type = "sip"  # Default calculator type
+    calculator_type = "sip"  # Default calculator type for advanced tab
 
     if request.method == 'POST':
-        # Check if it's SIP or Lumpsum calculation
-        calculator_type = request.form.get('calculator_type', 'sip')
+        # Check which form was submitted
+        form_type = request.form.get('form_type', 'advanced')
         
-        # If POST request, switch to advanced tab and show results
-        active_tab = "advanced"
-        try:
-            if calculator_type == 'sip':
-                form_data = {
-                    "monthly_sip": int(request.form['monthly_sip']),
-                    "annual_return": float(request.form['annual_return']) / 100,
-                    "expense_ratio": float(request.form['expense_ratio']) / 100,
-                    "years": int(request.form['years']),
-                    "inflation_rate": float(request.form.get('inflation_rate', 0)) / 100,
-                    "ltcg_rate": float(request.form.get('ltcg_rate', 0)) / 100,
-                    "stcg_rate": float(request.form.get('stcg_rate', 0)) / 100,
-                }
-                result = calculate_sip(**form_data)
+        if form_type == 'advanced':
+            # Advanced form submission
+            calculator_type = request.form.get('calculator_type', 'sip')
+            active_tab = "advanced"
             
-            elif calculator_type == 'lumpsum':
+            try:
+                if calculator_type == 'sip':
+                    form_data = {
+                        "monthly_sip": int(request.form['monthly_sip']),
+                        "annual_return": float(request.form['annual_return']) / 100,
+                        "expense_ratio": float(request.form['expense_ratio']) / 100,
+                        "years": int(request.form['years']),
+                        "inflation_rate": float(request.form.get('inflation_rate', 0)) / 100,
+                        "ltcg_rate": float(request.form.get('ltcg_rate', 0)) / 100,
+                        "stcg_rate": float(request.form.get('stcg_rate', 0)) / 100,
+                    }
+                    result = calculate_sip(**form_data)
+                    chart = create_pie_chart(
+                        result["total_invested"],
+                        result["net_return"],
+                        result["fees_paid"],
+                        result["capital_gains_tax"]
+                    )
+                
+                elif calculator_type == 'lumpsum':
+                    form_data = {
+                        "lumpsum_amount": int(request.form['lumpsum_amount']),
+                        "annual_return": float(request.form['annual_return']) / 100,
+                        "expense_ratio": float(request.form['expense_ratio']) / 100,
+                        "years": int(request.form['years']),
+                        "inflation_rate": float(request.form.get('inflation_rate', 0)) / 100,
+                        "ltcg_rate": float(request.form.get('ltcg_rate', 0)) / 100,
+                        "stcg_rate": float(request.form.get('stcg_rate', 0)) / 100,
+                    }
+                    result = calculate_lumpsum(**form_data)
+                    chart = create_pie_chart(
+                        result["total_invested"],
+                        result["net_return"],
+                        result["fees_paid"],
+                        result["capital_gains_tax"]
+                    )
+
+            except Exception as e:
+                print("Error:", e)
+
+        elif form_type == 'fd':
+            # FD form submission - simplified without tax options
+            active_tab = "fd"
+            
+            try:
                 form_data = {
-                    "lumpsum_amount": int(request.form['lumpsum_amount']),
-                    "annual_return": float(request.form['annual_return']) / 100,
-                    "expense_ratio": float(request.form['expense_ratio']) / 100,
-                    "years": int(request.form['years']),
-                    "inflation_rate": float(request.form.get('inflation_rate', 0)) / 100,
-                    "ltcg_rate": float(request.form.get('ltcg_rate', 0)) / 100,
-                    "stcg_rate": float(request.form.get('stcg_rate', 0)) / 100,
+                    "principal_amount": int(request.form['fd_principal_amount']),
+                    "annual_interest_rate": float(request.form['fd_annual_interest_rate']) / 100,
+                    "years": int(request.form['fd_years']),
+                    "compounding_frequency": request.form['fd_compounding_frequency']
                 }
-                result = calculate_lumpsum(**form_data)
+                result = calculate_fd(**form_data)
+                chart = create_fd_pie_chart(
+                    result["principal_amount"],
+                    result["interest_earned"]
+                )
+                calculator_type = "fd"  # Set for template rendering
 
-            # Create chart for both calculator types
-            chart = create_pie_chart(
-                result["total_invested"],
-                result["net_return"],
-                result["fees_paid"],
-                result["capital_gains_tax"]
-            )
-
-        except Exception as e:
-            print("Error:", e)
+            except Exception as e:
+                print("Error:", e)
 
     else:
-        # Set default values for advanced calculator form
+        # Set default values for forms
         form_data = {
             "monthly_sip": 5000,
             "lumpsum_amount": 100000,
+            "principal_amount": 100000,
             "annual_return": 0.12,
+            "annual_interest_rate": 0.07,
             "expense_ratio": 0.01,
             "years": 10,
+            "compounding_frequency": "quarterly",
             "inflation_rate": 0.06,
             "ltcg_rate": 0.10,
             "stcg_rate": 0.15

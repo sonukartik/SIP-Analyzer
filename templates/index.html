@@ -377,6 +377,7 @@
             <button class="tab-btn {% if active_tab == 'simple' %}active{% endif %}" onclick="switchTab('simple')">Simple Calculator</button>
             <button class="tab-btn {% if active_tab == 'advanced' %}active{% endif %}" onclick="switchTab('advanced')">Advanced Calculator</button>
             <button class="tab-btn {% if active_tab == 'fd' %}active{% endif %}" onclick="switchTab('fd')">FD Calculator</button>
+            <button class="tab-btn {% if active_tab == 'swp' %}active{% endif %}" onclick="switchTab('swp')">SWP Calculator</button>
         </div>
 
         <!-- Simple Calculator Tab -->
@@ -691,241 +692,387 @@
             </div>
         </div>
 
-<script>
-    // Tab switching functionality
-    function switchTab(tabName) {
-        // Hide all tab contents
-        const tabContents = document.querySelectorAll('.tab-content');
-        tabContents.forEach(content => content.classList.remove('active'));
-        
-        // Remove active class from all tab buttons
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-        
-        // Show selected tab content
-        document.getElementById(tabName + '-tab').classList.add('active');
-        
-        // Add active class to clicked button
-        event.target.classList.add('active');
-    }
+        <!-- SWP Calculator Tab -->
+        <div id="swp-tab" class="tab-content {% if active_tab == 'swp' %}active{% endif %}">
+            <div class="content">
+                <div class="form-section">
+                    <h2 style="margin-bottom: 20px; color: #333;">SWP (Systematic Withdrawal Plan) Calculator</h2>
+                    
+                    <form method="POST">
+                        <input type="hidden" name="form_type" value="swp">
+                        
+                        <div class="form-group">
+                            <label for="swp_initial_corpus">Initial Corpus (₹)</label>
+                            <input type="number" id="swp_initial_corpus" name="swp_initial_corpus" 
+                                   value="{{ form_data.initial_corpus if form_data.initial_corpus is defined else 1000000 }}" required min="10000" step="10000">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="swp_monthly_withdrawal">Monthly Withdrawal Amount (₹)</label>
+                            <input type="number" id="swp_monthly_withdrawal" name="swp_monthly_withdrawal" 
+                                   value="{{ form_data.monthly_withdrawal if form_data.monthly_withdrawal is defined else 10000 }}" required min="1000" step="1000">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="swp_annual_return">Expected Annual Return (%)</label>
+                            <input type="number" id="swp_annual_return" name="swp_annual_return" 
+                                   value="{{ (form_data.annual_return * 100) if form_data.annual_return is defined else 12 }}" 
+                                   required min="1" max="30" step="0.1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="swp_expense_ratio">Expense Ratio (%)</label>
+                            <input type="number" id="swp_expense_ratio" name="swp_expense_ratio" 
+                                   value="{{ (form_data.expense_ratio * 100) if form_data.expense_ratio is defined else 1 }}" 
+                                   min="0" max="5" step="0.1">
+                        </div>
 
-    // Advanced calculator type switching
-    function switchCalculator(type) {
-        // Update hidden input
-        document.getElementById('calculator_type').value = type;
-        
-        // Switch button styles
-        const buttons = document.querySelectorAll('.calc-type-btn');
-        buttons.forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-        
-        // Show/hide appropriate fields
-        const sipFields = document.getElementById('sip-fields');
-        const lumpsumFields = document.getElementById('lumpsum-fields');
-        
-        // Reset required attributes
-        document.getElementById('monthly_sip').required = false;
-        document.getElementById('lumpsum_amount').required = false;
-        
-        if (type === 'sip') {
-            sipFields.style.display = 'block';
-            lumpsumFields.style.display = 'none';
-            document.getElementById('monthly_sip').required = true;
-        } else if (type === 'lumpsum') {
-            sipFields.style.display = 'none';
-            lumpsumFields.style.display = 'block';
-            document.getElementById('lumpsum_amount').required = true;
-        }
-    }
+                        <div class="advanced-section">
+                            <button type="button" class="advanced-toggle" onclick="toggleSWPAdvanced()">
+                                <span class="arrow">▼</span> Advanced Options
+                            </button>
+                            
+                            <div class="advanced-options" id="swpAdvancedOptions">
+                                <div class="form-group">
+                                    <label for="swp_inflation_rate">Inflation Rate (% per year)</label>
+                                    <input type="number" id="swp_inflation_rate" name="swp_inflation_rate" 
+                                           value="{{ (form_data.inflation_rate * 100) if form_data.inflation_rate is defined else 6 }}" 
+                                           min="0" max="15" step="0.1">
+                                </div>
 
-    // Simple calculator type switching
-    function switchSimpleCalculator(type) {
-        // Update hidden input
-        document.getElementById('simple_calculator_type').value = type;
-        
-        // Switch button styles
-        const buttons = document.querySelectorAll('.simple-calc-type-btn');
-        buttons.forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-        
-        // Show/hide appropriate fields
-        const sipFields = document.getElementById('sip-simple-fields');
-        const lumpsumFields = document.getElementById('lumpsum-simple-fields');
-        
-        if (type === 'sip') {
-            sipFields.style.display = 'block';
-            lumpsumFields.style.display = 'none';
-        } else if (type === 'lumpsum') {
-            sipFields.style.display = 'none';
-            lumpsumFields.style.display = 'block';
-        }
-        
-        // Update calculate button text
-        const calcBtn = document.querySelector('#simple-form .calculate-btn');
-        const buttonText = {
-            'sip': 'Calculate SIP Returns',
-            'lumpsum': 'Calculate Lumpsum Returns'
-        };
-        calcBtn.textContent = buttonText[type];
-    }
+                                <div class="tax-info">
+                                    <strong>SWP Information:</strong><br>
+                                    • <strong>Withdrawal Strategy:</strong> Fixed amount withdrawn monthly<br>
+                                    • <strong>Inflation Impact:</strong> Withdrawals can be adjusted for inflation<br>
+                                    • <strong>Returns:</strong> Remaining corpus continues to earn returns<br>
+                                    • Calculate how long your corpus will sustain regular withdrawals
+                                </div>
+                            </div>
+                        </div>
 
-    // Global variable for the simple chart instance
-    let simpleChartInstance = null;
-
-    // Simple calculation function
-    function calculateSimple() {
-        const calculatorType = document.getElementById('simple_calculator_type').value;
-        const years = parseInt(document.getElementById('simple_years').value);
-        const annualReturn = parseFloat(document.getElementById('simple_annual_return').value) / 100;
-        
-        let totalInvested, corpus, totalReturns;
-        
-        if (calculatorType === 'sip') {
-            const monthlySip = parseFloat(document.getElementById('simple_monthly_sip').value);
-            
-            if (!monthlySip || !annualReturn || !years) {
-                alert('Please fill in all fields');
-                return;
-            }
-            
-            const totalMonths = years * 12;
-            const monthlyReturn = Math.pow(1 + annualReturn, 1/12) - 1;
-            
-            corpus = 0;
-            for (let month = 1; month <= totalMonths; month++) {
-                corpus = (corpus + monthlySip) * (1 + monthlyReturn);
-            }
-            
-            totalInvested = monthlySip * totalMonths;
-            
-        } else if (calculatorType === 'lumpsum') {
-            const lumpsumAmount = parseFloat(document.getElementById('simple_lumpsum_amount').value);
-            
-            if (!lumpsumAmount || !annualReturn || !years) {
-                alert('Please fill in all fields');
-                return;
-            }
-            
-            totalInvested = lumpsumAmount;
-            corpus = lumpsumAmount * Math.pow(1 + annualReturn, years);
-        }
-        
-        totalReturns = corpus - totalInvested;
-        
-        // Format numbers with Indian currency format
-        const formatCurrency = (value) => {
-            const formatted = value.toLocaleString('en-IN', { 
-                minimumFractionDigits: 0, 
-                maximumFractionDigits: 0 
-            });
-            
-            let unit = '';
-            if (value >= 10000000) {
-                unit = ` (${(value / 10000000).toFixed(2)} Cr)`;
-            } else if (value >= 100000) {
-                unit = ` (${(value / 100000).toFixed(2)} Lakh)`;
-            }
-            
-            return formatted + unit;
-        };
-        
-        // Display results
-        const resultsDiv = document.getElementById('simple-results');
-        const calculatorName = {
-            'sip': 'SIP',
-            'lumpsum': 'Lumpsum'
-        }[calculatorType];
-        
-        resultsDiv.innerHTML = `
-            <h2 style="margin-bottom: 20px; color: #333;">Your ${calculatorName} Results</h2>
-            <div class="simple-results">
-                <div class="result-item">
-                    <div class="result-label">Total Invested</div>
-                    <div class="result-value">₹${formatCurrency(totalInvested)}</div>
+                        <button type="submit" class="calculate-btn">Calculate SWP Duration</button>
+                    </form>
                 </div>
-                <div class="result-item">
-                    <div class="result-label">Total Returns</div>
-                    <div class="result-value">₹${formatCurrency(totalReturns)}</div>
-                </div>
-                <div class="result-item highlight">
-                    <div class="result-label">Final Corpus</div>
-                    <div class="result-value">₹${formatCurrency(corpus)}</div>
+
+                <div class="results-section">
+                    {% if result and active_tab == 'swp' %}
+                        <h2 style="margin-bottom: 20px; color: #333;">Your SWP Results</h2>
+                        
+                        <div class="results-grid">
+                            <div class="result-item">
+                                <div class="result-label">Initial Corpus</div>
+                                <div class="result-value">₹{{ result.initial_corpus | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item">
+                                <div class="result-label">Monthly Withdrawal</div>
+                                <div class="result-value">₹{{ result.monthly_withdrawal | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item highlight">
+                                <div class="result-label">Withdrawal Duration</div>
+                                <div class="result-value">{{ result.duration_years }} Years</div>
+                            </div>
+
+                            <div class="result-item">
+                                <div class="result-label">Total Amount Withdrawn</div>
+                                <div class="result-value">₹{{ result.total_withdrawn | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item">
+                                <div class="result-label">Remaining Corpus</div>
+                                <div class="result-value">₹{{ result.remaining_corpus | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item fd-specific">
+                                <div class="result-label">Total Returns Earned</div>
+                                <div class="result-value">₹{{ result.total_returns_earned | with_unit }}</div>
+                            </div>
+
+                            {% if result.corpus_exhausted %}
+                            <div class="result-item tax">
+                                <div class="result-label">Status</div>
+                                <div class="result-value">Corpus Exhausted</div>
+                            </div>
+                            {% else %}
+                            <div class="result-item">
+                                <div class="result-label">Status</div>
+                                <div class="result-value">Corpus Remaining</div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if chart %}
+                        <div class="chart-container">
+                            <h3 style="margin-bottom: 15px; color: #333;">SWP Analysis (First 5 Years)</h3>
+                            <img src="data:image/png;base64,{{ chart }}" alt="SWP Analysis">
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="no-results">
+                            <h2>Enter your SWP details</h2>
+                            <p>Fill in the form to calculate how long your corpus will sustain regular withdrawals.</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
-        `;
+        </div>
 
-        // Create pie chart
-        const chartContainer = document.getElementById('simple-chart-container');
-        const ctx = document.getElementById('simpleChart').getContext('2d');
+        <script>
+            // Tab switching functionality
+            function switchTab(tabName) {
+                // Hide all tab contents
+                const tabContents = document.querySelectorAll('.tab-content');
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Remove active class from all tab buttons
+                const tabButtons = document.querySelectorAll('.tab-btn');
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Show selected tab content
+                document.getElementById(tabName + '-tab').classList.add('active');
+                
+                // Add active class to clicked button
+                event.target.classList.add('active');
+            }
 
-        // Destroy previous chart instance if it exists
-        if (simpleChartInstance) {
-            simpleChartInstance.destroy();
-        }
+            // Advanced calculator type switching
+            function switchCalculator(type) {
+                // Update hidden input
+                document.getElementById('calculator_type').value = type;
+                
+                // Switch button styles
+                const buttons = document.querySelectorAll('.calc-type-btn');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                // Show/hide appropriate fields
+                const sipFields = document.getElementById('sip-fields');
+                const lumpsumFields = document.getElementById('lumpsum-fields');
+                
+                // Reset required attributes
+                document.getElementById('monthly_sip').required = false;
+                document.getElementById('lumpsum_amount').required = false;
+                
+                if (type === 'sip') {
+                    sipFields.style.display = 'block';
+                    lumpsumFields.style.display = 'none';
+                    document.getElementById('monthly_sip').required = true;
+                } else if (type === 'lumpsum') {
+                    sipFields.style.display = 'none';
+                    lumpsumFields.style.display = 'block';
+                    document.getElementById('lumpsum_amount').required = true;
+                }
+            }
 
-        // Make chart container visible
-        chartContainer.style.display = 'block';
+            // Simple calculator type switching
+            function switchSimpleCalculator(type) {
+                // Update hidden input
+                document.getElementById('simple_calculator_type').value = type;
+                
+                // Switch button styles
+                const buttons = document.querySelectorAll('.simple-calc-type-btn');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                // Show/hide appropriate fields
+                const sipFields = document.getElementById('sip-simple-fields');
+                const lumpsumFields = document.getElementById('lumpsum-simple-fields');
+                
+                if (type === 'sip') {
+                    sipFields.style.display = 'block';
+                    lumpsumFields.style.display = 'none';
+                } else if (type === 'lumpsum') {
+                    sipFields.style.display = 'none';
+                    lumpsumFields.style.display = 'block';
+                }
+                
+                // Update calculate button text
+                const calcBtn = document.querySelector('#simple-form .calculate-btn');
+                const buttonText = {
+                    'sip': 'Calculate SIP Returns',
+                    'lumpsum': 'Calculate Lumpsum Returns'
+                };
+                calcBtn.textContent = buttonText[type];
+            }
 
-        // Create new pie chart
-        simpleChartInstance = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Total Invested', 'Total Returns'],
-                datasets: [{
-                    label: 'Investment Breakdown',
-                    data: [totalInvested, totalReturns],
-                    backgroundColor: ['#667eea', '#2ecc71'],
-                    borderColor: ['#ffffff', '#ffffff'],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'top' },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.label || '';
-                                const value = context.parsed;
-                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+            // Global variable for the simple chart instance
+            let simpleChartInstance = null;
 
-                                if (label) { label += ': '; }
-                                if (value !== null) {
-                                    label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
-                                    label += ` (${percentage}%)`;
+            // Simple calculation function
+            function calculateSimple() {
+                const calculatorType = document.getElementById('simple_calculator_type').value;
+                const years = parseInt(document.getElementById('simple_years').value);
+                const annualReturn = parseFloat(document.getElementById('simple_annual_return').value) / 100;
+                
+                let totalInvested, corpus, totalReturns;
+                
+                if (calculatorType === 'sip') {
+                    const monthlySip = parseFloat(document.getElementById('simple_monthly_sip').value);
+                    
+                    if (!monthlySip || !annualReturn || !years) {
+                        alert('Please fill in all fields');
+                        return;
+                    }
+                    
+                    const totalMonths = years * 12;
+                    const monthlyReturn = Math.pow(1 + annualReturn, 1/12) - 1;
+                    
+                    corpus = 0;
+                    for (let month = 1; month <= totalMonths; month++) {
+                        corpus = (corpus + monthlySip) * (1 + monthlyReturn);
+                    }
+                    
+                    totalInvested = monthlySip * totalMonths;
+                    
+                } else if (calculatorType === 'lumpsum') {
+                    const lumpsumAmount = parseFloat(document.getElementById('simple_lumpsum_amount').value);
+                    
+                    if (!lumpsumAmount || !annualReturn || !years) {
+                        alert('Please fill in all fields');
+                        return;
+                    }
+                    
+                    totalInvested = lumpsumAmount;
+                    corpus = lumpsumAmount * Math.pow(1 + annualReturn, years);
+                }
+                
+                totalReturns = corpus - totalInvested;
+                
+                // Format numbers with Indian currency format
+                const formatCurrency = (value) => {
+                    const formatted = value.toLocaleString('en-IN', { 
+                        minimumFractionDigits: 0, 
+                        maximumFractionDigits: 0 
+                    });
+                    
+                    let unit = '';
+                    if (value >= 10000000) {
+                        unit = ` (${(value / 10000000).toFixed(2)} Cr)`;
+                    } else if (value >= 100000) {
+                        unit = ` (${(value / 100000).toFixed(2)} Lakh)`;
+                    }
+                    
+                    return formatted + unit;
+                };
+                
+                // Display results
+                const resultsDiv = document.getElementById('simple-results');
+                const calculatorName = {
+                    'sip': 'SIP',
+                    'lumpsum': 'Lumpsum'
+                }[calculatorType];
+                
+                resultsDiv.innerHTML = `
+                    <h2 style="margin-bottom: 20px; color: #333;">Your ${calculatorName} Results</h2>
+                    <div class="simple-results">
+                        <div class="result-item">
+                            <div class="result-label">Total Invested</div>
+                            <div class="result-value">₹${formatCurrency(totalInvested)}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Total Returns</div>
+                            <div class="result-value">₹${formatCurrency(totalReturns)}</div>
+                        </div>
+                        <div class="result-item highlight">
+                            <div class="result-label">Final Corpus</div>
+                            <div class="result-value">₹${formatCurrency(corpus)}</div>
+                        </div>
+                    </div>
+                `;
+
+                // Create pie chart
+                const chartContainer = document.getElementById('simple-chart-container');
+                const ctx = document.getElementById('simpleChart').getContext('2d');
+
+                // Destroy previous chart instance if it exists
+                if (simpleChartInstance) {
+                    simpleChartInstance.destroy();
+                }
+
+                // Make chart container visible
+                chartContainer.style.display = 'block';
+
+                // Create new pie chart
+                simpleChartInstance = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Total Invested', 'Total Returns'],
+                        datasets: [{
+                            label: 'Investment Breakdown',
+                            data: [totalInvested, totalReturns],
+                            backgroundColor: ['#667eea', '#2ecc71'],
+                            borderColor: ['#ffffff', '#ffffff'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        const value = context.parsed;
+                                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+
+                                        if (label) { label += ': '; }
+                                        if (value !== null) {
+                                            label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+                                            label += ` (${percentage}%)`;
+                                        }
+                                        return label;
+                                    }
                                 }
-                                return label;
                             }
                         }
                     }
-                }
+                });
             }
-        });
-    }
 
-    // Advanced calculator functions
-    function toggleAdvanced() {
-        const options = document.getElementById('advancedOptions');
-        const arrow = document.querySelector('.advanced-toggle .arrow');
-        
-        options.classList.toggle('show');
-        arrow.classList.toggle('rotated');
-    }
+            // Advanced calculator functions
+            function toggleAdvanced() {
+                const options = document.getElementById('advancedOptions');
+                const arrow = document.querySelector('.advanced-toggle .arrow');
+                
+                options.classList.toggle('show');
+                arrow.classList.toggle('rotated');
+            }
 
-    // Auto-show advanced options if any advanced field has a value
-    document.addEventListener('DOMContentLoaded', function() {
-        // For advanced calculator
-        const advancedFields = ['inflation_rate', 'ltcg_rate', 'stcg_rate'];
-        const hasAdvancedValues = advancedFields.some(field => {
-            const input = document.getElementById(field);
-            return input && input.value && parseFloat(input.value) > 0;
-        });
+            // SWP Advanced Options Toggle Function - THIS WAS MISSING!
+            function toggleSWPAdvanced() {
+                const options = document.getElementById('swpAdvancedOptions');
+                const arrow = document.querySelector('#swp-tab .advanced-toggle .arrow');
+                
+                options.classList.toggle('show');
+                arrow.classList.toggle('rotated');
+            }
 
-        if (hasAdvancedValues) {
-            toggleAdvanced();
-        }
-    });
-</script>
+            // Auto-show advanced options if any advanced field has a value
+            document.addEventListener('DOMContentLoaded', function() {
+                // For advanced calculator
+                const advancedFields = ['inflation_rate', 'ltcg_rate', 'stcg_rate'];
+                const hasAdvancedValues = advancedFields.some(field => {
+                    const input = document.getElementById(field);
+                    return input && input.value && parseFloat(input.value) > 0;
+                });
+
+                if (hasAdvancedValues) {
+                    toggleAdvanced();
+                }
+
+                // For SWP calculator
+                const swpAdvancedFields = ['swp_inflation_rate'];
+                const hasSWPAdvancedValues = swpAdvancedFields.some(field => {
+                    const input = document.getElementById(field);
+                    return input && input.value && parseFloat(input.value) > 0;
+                });
+
+                if (hasSWPAdvancedValues) {
+                    toggleSWPAdvanced();
+                }
+            });
+        </script>
 {% endblock %}

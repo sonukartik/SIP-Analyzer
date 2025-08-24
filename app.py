@@ -203,6 +203,69 @@ def calculate_fd(principal_amount, annual_interest_rate, years, compounding_freq
     }
 
 
+def calculate_swp(initial_corpus, monthly_withdrawal, annual_return, expense_ratio, inflation_rate=0):
+    """Calculate SWP (Systematic Withdrawal Plan) scenarios"""
+    
+    monthly_return = (1 + annual_return) ** (1 / 12) - 1
+    monthly_inflation = (1 + inflation_rate) ** (1 / 12) - 1
+    
+    corpus = initial_corpus
+    total_withdrawn = 0
+    month = 0
+    monthly_withdrawals = []
+    corpus_values = []
+    
+    current_withdrawal = monthly_withdrawal
+    
+    # Calculate until corpus is exhausted or 50 years (600 months)
+    while corpus > 0 and month < 600:
+        month += 1
+        
+        # Apply returns first
+        corpus *= (1 + monthly_return)
+        
+        # Apply expense ratio annually (every 12 months)
+        if month % 12 == 0:
+            corpus *= (1 - expense_ratio)
+        
+        # Adjust withdrawal for inflation if enabled
+        if inflation_rate > 0 and month > 1:
+            current_withdrawal *= (1 + monthly_inflation)
+        
+        # Make withdrawal
+        actual_withdrawal = min(current_withdrawal, corpus)
+        corpus -= actual_withdrawal
+        total_withdrawn += actual_withdrawal
+        
+        # Store data for visualization
+        monthly_withdrawals.append(actual_withdrawal)
+        corpus_values.append(corpus)
+        
+        # Break if corpus becomes very small
+        if corpus < 1:
+            break
+    
+    # Calculate average monthly withdrawal
+    avg_monthly_withdrawal = total_withdrawn / month if month > 0 else 0
+    
+    # Calculate total returns earned during withdrawal period
+    total_returns = total_withdrawn + corpus - initial_corpus
+    
+    return {
+        "initial_corpus": round(initial_corpus, 2),
+        "monthly_withdrawal": round(monthly_withdrawal, 2),
+        "total_withdrawn": round(total_withdrawn, 2),
+        "remaining_corpus": round(corpus, 2),
+        "duration_months": month,
+        "duration_years": round(month / 12, 1),
+        "avg_monthly_withdrawal": round(avg_monthly_withdrawal, 2),
+        "total_returns_earned": round(total_returns, 2),
+        "corpus_exhausted": corpus < 1,
+        "monthly_withdrawals": monthly_withdrawals[:60],  # First 5 years for chart
+        "corpus_values": corpus_values[:60]  # First 5 years for chart
+    }
+
+
 def create_pie_chart(total_invested, net_return, fees_paid, capital_gains_tax):
     labels = ['Invested Amount', 'Net Return', 'Fees', 'Capital Gains Tax']
     values = [total_invested, net_return, fees_paid, capital_gains_tax]
@@ -246,6 +309,39 @@ def create_fd_pie_chart(principal_amount, interest_earned):
         plt.text(0.5, 0.5, 'No data to display', ha='center', va='center', transform=plt.gca().transAxes)
         plt.title("Fixed Deposit Breakdown")
 
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=150)
+    buf.seek(0)
+    chart_data = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+    plt.close()
+    return chart_data
+
+
+def create_swp_chart(corpus_values, monthly_withdrawals):
+    """Create a line chart showing corpus depletion over time"""
+    months = list(range(1, len(corpus_values) + 1))
+    
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
+    
+    # Corpus value over time
+    ax1.plot(months, corpus_values, color='#e74c3c', linewidth=2, marker='o', markersize=3)
+    ax1.set_title('Corpus Value Over Time', fontsize=14, fontweight='bold')
+    ax1.set_xlabel('Months')
+    ax1.set_ylabel('Corpus Value (₹)')
+    ax1.grid(True, alpha=0.3)
+    ax1.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'₹{x:,.0f}'))
+    
+    # Monthly withdrawal amounts
+    ax2.plot(months, monthly_withdrawals, color='#2ecc71', linewidth=2, marker='s', markersize=3)
+    ax2.set_title('Monthly Withdrawal Amount', fontsize=14, fontweight='bold')
+    ax2.set_xlabel('Months')
+    ax2.set_ylabel('Withdrawal Amount (₹)')
+    ax2.grid(True, alpha=0.3)
+    ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'₹{x:,.0f}'))
+    
+    plt.tight_layout()
+    
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight', dpi=150)
     buf.seek(0)
@@ -333,12 +429,37 @@ def index():
             except Exception as e:
                 print("Error:", e)
 
+        elif form_type == 'swp':
+            # SWP form submission
+            active_tab = "swp"
+            
+            try:
+                form_data = {
+                    "initial_corpus": int(request.form['swp_initial_corpus']),
+                    "monthly_withdrawal": int(request.form['swp_monthly_withdrawal']),
+                    "annual_return": float(request.form['swp_annual_return']) / 100,
+                    "expense_ratio": float(request.form.get('swp_expense_ratio', 0)) / 100,
+                    "inflation_rate": float(request.form.get('swp_inflation_rate', 0)) / 100,
+                }
+                result = calculate_swp(**form_data)
+                if result["corpus_values"] and result["monthly_withdrawals"]:
+                    chart = create_swp_chart(
+                        result["corpus_values"],
+                        result["monthly_withdrawals"]
+                    )
+                calculator_type = "swp"  # Set for template rendering
+
+            except Exception as e:
+                print("Error:", e)
+
     else:
         # Set default values for forms
         form_data = {
             "monthly_sip": 5000,
             "lumpsum_amount": 100000,
             "principal_amount": 100000,
+            "initial_corpus": 1000000,
+            "monthly_withdrawal": 10000,
             "annual_return": 0.12,
             "annual_interest_rate": 0.07,
             "expense_ratio": 0.01,

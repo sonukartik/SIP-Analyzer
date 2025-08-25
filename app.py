@@ -40,6 +40,13 @@ def ads_txt():
 def privacy():
     return render_template("privacy.html")
 
+@app.route("/disclaimer")
+def disclaimer():
+    return render_template("disclaimer.html")
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 # Utility function to format with Lakhs/Cr
 def format_full_with_unit(value):

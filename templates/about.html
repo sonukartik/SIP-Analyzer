@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - SIP Calculator{% endblock %}
+
+{% block head_style %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .about-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .about-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+    }
+
+    .about-header h1 {
+        font-size: 2.8rem;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .about-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin: 0;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .about-content {
+        padding: 50px;
+        line-height: 1.8;
+    }
+
+    .section {
+        margin-bottom: 40px;
+    }
+
+    .section h2 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+        font-weight: 600;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    .section p {
+        color: #555;
+        margin-bottom: 20px;
+        text-align: justify;
+        font-size: 1.1rem;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin: 30px 0;
+    }
+
+    .feature-card {
+        background: #f8f9ff;
+        padding: 30px;
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-card h3 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+
+    .feature-card p {
+        color: #666;
+        margin: 0;
+        text-align: left;
+    }
+
+    .stats-container {
+        background: linear-gradient(135deg, #f8f9ff 0%, #e8f0fe 100%);
+        padding: 40px;
+        border-radius: 15px;
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 30px;
+    }
+
+    .stat-item {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+        display: block;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 1rem;
+        margin-top: 5px;
+    }
+
+    .mission-statement {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 30px;
+        margin: 30px 0;
+        text-align: center;
+        font-style: italic;
+        font-size: 1.2rem;
+        color: #856404;
+    }
+
+    .team-section {
+        margin-top: 50px;
+    }
+
+    .commitment-list {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+    }
+
+    .commitment-list li {
+        background: #f8f9ff;
+        margin: 10px 0;
+        padding: 15px;
+        border-left: 4px solid #667eea;
+        border-radius: 5px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 15px;
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    .cta-section h2 {
+        border: none;
+        color: white;
+        margin-bottom: 20px;
+    }
+
+    .cta-button {
+        display: inline-block;
+        background: white;
+        color: #667eea;
+        padding: 15px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        margin: 10px;
+        transition: transform 0.3s ease;
+    }
+
+    .cta-button:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+        color: #764ba2;
+    }
+
+    @media (max-width: 768px) {
+        .about-container {
+            margin: 1rem;
+        }
+
+        .about-content {
+            padding: 30px;
+        }
+
+        .about-header {
+            padding: 30px;
+        }
+
+        .about-header h1 {
+            font-size: 2.2rem;
+        }
+
+        .features-grid, .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-container {
+            padding: 25px;
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-container">
+    <div class="about-header">
+        <h1>About Our Investment Calculator</h1>
+        <p>Empowering smart financial decisions through accurate calculations and educational resources</p>
+    </div>
+
+    <div class="about-content">
+        <div class="section">
+            <h2>Our Mission</h2>
+            <div class="mission-statement">
+                "To provide accessible, accurate, and educational financial calculation tools that help individuals 
+                make informed investment decisions and build a better financial future."
+            </div>
+            <p>
+                We believe that financial literacy and planning should be accessible to everyone. Our comprehensive 
+                suite of calculators is designed to demystify complex financial concepts and help you understand 
+                the potential outcomes of various investment strategies. Whether you're a beginner exploring SIP 
+                investments or an experienced investor planning tax-efficient strategies, our tools provide the 
+                insights you need.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>What We Offer</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>SIP Calculator</h3>
+                    <p>Plan your systematic investment plans with detailed projections including fees, taxes, and inflation adjustments. Understand how regular investments can grow over time through the power of compounding.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Lumpsum Calculator</h3>
+                    <p>Analyze one-time investment scenarios with comprehensive tax planning features. See how a single investment can grow and understand the tax implications of your returns.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Fixed Deposit Calculator</h3>
+                    <p>Compare different compounding frequencies and understand the true returns on your FD investments. Make informed decisions about traditional saving instruments.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>SWP Calculator</h3>
+                    <p>Plan your retirement income with systematic withdrawal plans. Understand how long your corpus will last and optimize your withdrawal strategy.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Tax Planning Tools</h3>
+                    <p>Incorporate LTCG and STCG tax calculations to understand the real returns on your investments. Plan your investment horizon for optimal tax efficiency.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Inflation Adjustment</h3>
+                    <p>See the real purchasing power of your future corpus by accounting for inflation. Make more realistic financial plans with inflation-adjusted calculations.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Why Choose Our Calculators</h2>
+            <p>
+                Our calculators go beyond basic projections to provide comprehensive financial planning insights. 
+                We incorporate real-world factors like expense ratios, various tax scenarios, and inflation to give 
+                you a more accurate picture of your investment outcomes. Our tools are designed by considering 
+                Indian tax laws and investment practices, making them particularly relevant for Indian investors.
+            </p>
+            
+            <ul class="commitment-list">
+                <li>Accurate calculations based on compound interest mathematics and Indian tax laws</li>
+                <li>User-friendly interface suitable for both beginners and experienced investors</li>
+                <li>Comprehensive features including tax planning and inflation adjustments</li>
+                <li>No data collection - all calculations happen in your browser</li>
+                <li>Mobile-responsive design for calculations on the go</li>
+                <li>Regular updates to reflect current market conditions and tax laws</li>
+            </ul>
+        </div>
+
+        <div class="stats-container">
+            <h2 style="color: #333; margin-bottom: 30px;">Calculator Features</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">4</span>
+                    <div class="stat-label">Calculator Types</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">10+</span>
+                    <div class="stat-label">Financial Parameters</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">100%</span>
+                    <div class="stat-label">Free to Use</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">24/7</span>
+                    <div class="stat-label">Available</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Understanding Investment Risks</h2>
+            <p>
+                While our calculators provide mathematical projections based on the inputs you provide, it's important 
+                to understand that all investments carry risks. Market volatility, economic conditions, policy changes, 
+                and other factors can significantly impact actual returns. Our calculators are educational tools that 
+                help you understand potential scenarios, but they cannot predict actual market performance.
+            </p>
+            <p>
+                We strongly encourage users to consult with qualified financial advisors before making investment decisions. 
+                Our tools are designed to complement professional advice, not replace it. Use our calculators as a starting 
+                point for your financial planning research and discussions with financial professionals.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>Educational Approach</h2>
+            <p>
+                Beyond just providing calculations, we aim to educate users about various financial concepts. Our calculators 
+                include explanations of terms like LTCG, STCG, expense ratios, and compounding. We believe that understanding 
+                these concepts is crucial for making informed financial decisions.
+            </p>
+            <p>
+                Each calculator includes relevant information about tax implications, fees, and other factors that affect 
+                your investments. We also provide disclaimers and warnings to ensure users understand the limitations 
+                of projected calculations and the importance of professional financial advice.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>Commitment to Accuracy</h2>
+            <p>
+                We are committed to providing accurate calculations based on established financial mathematics. Our formulas 
+                are regularly reviewed and updated to ensure they reflect current practices. However, we also clearly communicate 
+                the limitations of any calculator and the importance of verifying information with official sources.
+            </p>
+            <p>
+                Tax calculations are based on general rates and may not reflect your specific situation. We recommend 
+                consulting with tax professionals for personalized tax planning. Similarly, our projections are based 
+                on the assumption of consistent returns, which may not reflect actual market conditions.
+            </p>
+        </div>
+
+        <div class="cta-section">
+            <h2>Start Planning Your Financial Future</h2>
+            <p>Take control of your investments with our comprehensive calculation tools. Whether you're just starting your investment journey or looking to optimize your existing portfolio, our calculators provide the insights you need.</p>
+            <a href="{{ url_for('index') }}" class="cta-button">Use Our Calculators</a>
+            <a href="{{ url_for('contact') }}" class="cta-button">Contact Us</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

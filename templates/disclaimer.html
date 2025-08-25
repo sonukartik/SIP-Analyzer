@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Financial Disclaimer - SIP Calculator{% endblock %}
+
+{% block head_style %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .disclaimer-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .disclaimer-header {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .disclaimer-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .disclaimer-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .disclaimer-content {
+        padding: 40px;
+        line-height: 1.8;
+    }
+
+    .disclaimer-content h2 {
+        color: #e74c3c;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        font-weight: 600;
+        border-bottom: 2px solid #e74c3c;
+        padding-bottom: 8px;
+    }
+
+    .disclaimer-content h2:first-of-type {
+        margin-top: 0;
+    }
+
+    .disclaimer-content p {
+        color: #333;
+        margin-bottom: 15px;
+        text-align: justify;
+        font-weight: 500;
+    }
+
+    .disclaimer-content ul {
+        color: #333;
+        margin-bottom: 15px;
+        padding-left: 20px;
+    }
+
+    .disclaimer-content li {
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .warning-box {
+        background: #fff3cd;
+        color: #856404;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #ffc107;
+        margin: 20px 0;
+        font-weight: 600;
+    }
+
+    .important-box {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #e74c3c;
+        margin: 20px 0;
+        font-weight: 600;
+    }
+
+    .last-updated {
+        background: #d1ecf1;
+        color: #0c5460;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #17a2b8;
+        margin-top: 30px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
+        .disclaimer-container {
+            margin: 1rem;
+        }
+
+        .disclaimer-content {
+            padding: 20px;
+        }
+
+        .disclaimer-header h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="disclaimer-container">
+    <div class="disclaimer-header">
+        <h1>⚠️ Financial Disclaimer</h1>
+        <p>Important Information - Please Read Carefully</p>
+    </div>
+
+    <div class="disclaimer-content">
+        <div class="important-box">
+            <strong>IMPORTANT:</strong> This calculator is for educational and informational purposes only. 
+            It does not constitute financial, investment, tax, or legal advice.
+        </div>
+
+        <h2>No Financial Advice</h2>
+        <p>
+            The information provided by our SIP Calculator and related tools is for educational purposes only. 
+            We are not licensed financial advisors, investment advisors, tax consultants, or legal professionals. 
+            All calculations, projections, and recommendations are hypothetical in nature and should not be considered 
+            as personalized financial advice.
+        </p>
+
+        <h2>Investment Risks</h2>
+        <p>All investments carry inherent risks, and past performance does not guarantee future results. Consider the following:</p>
+        <ul>
+            <li>Market volatility can significantly impact investment returns</li>
+            <li>Inflation may erode the purchasing power of your investments</li>
+            <li>Economic conditions and policy changes can affect investment performance</li>
+            <li>Currency fluctuations may impact international investments</li>
+            <li>Interest rate changes can affect bond and equity markets</li>
+            <li>Company-specific risks may impact individual stock investments</li>
+        </ul>
+
+        <h2>Calculator Limitations</h2>
+        <p>
+            Our calculators use mathematical models and assumptions that may not reflect real market conditions:
+        </p>
+        <ul>
+            <li>Returns are projected based on historical data and assumptions</li>
+            <li>Tax calculations are simplified and may not reflect your specific situation</li>
+            <li>Market timing, economic cycles, and external factors are not accounted for</li>
+            <li>Expense ratios and fees may vary from actual fund costs</li>
+            <li>Results are approximations and should not be treated as guarantees</li>
+        </ul>
+
+        <h2>Consult Professionals</h2>
+        <p>
+            Before making any investment decisions, we strongly recommend:
+        </p>
+        <ul>
+            <li>Consulting with a qualified financial advisor</li>
+            <li>Speaking with a tax professional about tax implications</li>
+            <li>Reviewing fund prospectuses and official documents</li>
+            <li>Understanding your risk tolerance and investment timeline</li>
+            <li>Considering your complete financial situation</li>
+        </ul>
+
+        <div class="warning-box">
+            <strong>Market Risk Warning:</strong> 
+            Mutual funds and equity investments are subject to market risks. 
+            Please read all scheme-related documents carefully before investing.
+        </div>
+
+        <h2>Accuracy and Liability</h2>
+        <p>
+            While we strive for accuracy, we make no warranties about the completeness, reliability, 
+            or accuracy of the information provided. We are not liable for any:
+        </p>
+        <ul>
+            <li>Investment losses or poor investment performance</li>
+            <li>Decisions made based on calculator results</li>
+            <li>Errors or omissions in calculations or projections</li>
+            <li>Technical issues or accessibility problems</li>
+            <li>Third-party content or external links</li>
+        </ul>
+
+        <h2>Tax Considerations</h2>
+        <p>
+            Tax laws are complex and change frequently. Our tax calculations are simplified estimates and may not reflect:
+        </p>
+        <ul>
+            <li>Your specific tax bracket and circumstances</li>
+            <li>State and local tax implications</li>
+            <li>Changes in tax laws and regulations</li>
+            <li>Deductions, exemptions, and credits you may qualify for</li>
+            <li>Alternative Minimum Tax (AMT) implications</li>
+        </ul>
+
+        <h2>Regulatory Compliance</h2>
+        <p>
+            This website and its calculators are not regulated by any financial authority. 
+            We do not provide investment recommendations, sell financial products, or manage investments. 
+            Always verify information with official sources and regulatory bodies.
+        </p>
+
+        <div class="important-box">
+            <strong>Educational Purpose Only:</strong> 
+            Use this tool as a starting point for your financial planning research, 
+            not as the sole basis for investment decisions.
+        </div>
+
+        <div class="last-updated">
+            Last updated: January 2025
+        </div>
+    </div>
+</div>
+{% endblock %}

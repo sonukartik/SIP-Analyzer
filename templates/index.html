@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}SIP, Lumpsum & FD Calculator with Tax Planning{% endblock %}
+{% block title %}SIP, Lumpsum, FD & RD Calculator with Tax Planning{% endblock %}
 
 {% block head_style %}
     <style>
@@ -42,30 +42,33 @@
             border-bottom: 1px solid #e1e5f2;
             display: flex;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .tab-btn {
             background: none;
             border: none;
-            padding: 20px 30px;
+            padding: 20px 25px;
             font-size: 16px;
             font-weight: 600;
             color: #666;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-            position: relative;
+            transition: all 0.4s ease;
+            border-radius: 8px 8px 0 0;
+            border-bottom: 4px solid transparent;
         }
 
         .tab-btn:hover {
             color: #667eea;
-            background: #f8f9ff;
+            background-color: #e9eafc;
         }
 
         .tab-btn.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-            background: #f8f9ff;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            border-bottom-color: #764ba2;
         }
 
         .tab-content {
@@ -113,9 +116,18 @@
             font-size: 14px;
         }
 
-        .calc-type-btn.active {
-            background: #667eea;
+        .calc-type-btn:hover:not(.active) {
+            background: linear-gradient(135deg, #a8b2f0, #b194cf);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             color: white;
+            transform: scale(1.05);
+        }
+
+        .calc-type-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 0 12px rgba(102, 126, 234, 0.6);
+            transform: scale(1.05);
         }
 
         .form-group {
@@ -164,6 +176,7 @@
 
         .advanced-toggle:hover {
             color: #764ba2;
+            text-shadow: 0 0 8px rgba(102, 126, 234, 0.7);
         }
 
         .advanced-options {
@@ -184,7 +197,7 @@
             color: #856404;
         }
 
-        .fd-info {
+        .fd-info, .rd-info {
             background: #d1ecf1;
             border: 1px solid #b6d4db;
             border-radius: 6px;
@@ -194,8 +207,32 @@
             color: #0c5460;
         }
 
-        .tax-info strong, .fd-info strong {
+        .rd-info {
+            background: #e8d5f2;
+            border: 1px solid #d1a7e1;
+            color: #4a1a5c;
+        }
+
+        .swp-info {
+            background: #fce4ec;
+            border: 1px solid #f8bbd9;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #880e4f;
+        }
+
+        .tax-info strong, .fd-info strong, .rd-info strong, .swp-info strong {
             color: #6c5214;
+        }
+
+        .rd-info strong {
+            color: #4a1a5c;
+        }
+
+        .swp-info strong {
+            color: #880e4f;
         }
 
         .calculate-btn {
@@ -214,6 +251,7 @@
 
         .calculate-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
 
         .results-section {
@@ -249,6 +287,16 @@
         .result-item.fd-specific {
             border-left-color: #17a2b8;
             background: linear-gradient(135deg, #e1f7fa 0%, #b6d4db 100%);
+        }
+
+        .result-item.rd-specific {
+            border-left-color: #9b59b6;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e8d5f2 100%);
+        }
+
+        .result-item.swp-specific {
+            border-left-color: #e91e63;
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
         }
 
         .result-label {
@@ -305,7 +353,7 @@
             }
 
             .tab-btn {
-                padding: 15px 15px;
+                padding: 15px 10px;
                 font-size: 14px;
             }
 
@@ -358,9 +406,18 @@
             font-size: 14px;
         }
 
-        .simple-calc-type-btn.active {
-            background: #667eea;
+        .simple-calc-type-btn:hover:not(.active) {
+            background: linear-gradient(135deg, #a8b2f0, #b194cf);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             color: white;
+            transform: scale(1.05);
+        }
+
+        .simple-calc-type-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 0 12px rgba(102, 126, 234, 0.6);
+            transform: scale(1.05);
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -377,183 +434,217 @@
             <button class="tab-btn {% if active_tab == 'simple' %}active{% endif %}" onclick="switchTab('simple')">Simple Calculator</button>
             <button class="tab-btn {% if active_tab == 'advanced' %}active{% endif %}" onclick="switchTab('advanced')">Advanced Calculator</button>
             <button class="tab-btn {% if active_tab == 'fd' %}active{% endif %}" onclick="switchTab('fd')">FD Calculator</button>
+            <button class="tab-btn {% if active_tab == 'rd' %}active{% endif %}" onclick="switchTab('rd')">RD Calculator</button>
             <button class="tab-btn {% if active_tab == 'swp' %}active{% endif %}" onclick="switchTab('swp')">SWP Calculator</button>
         </div>
 
         <!-- Simple Calculator Tab -->
-        <div id="simple-tab" class="tab-content {% if active_tab == 'simple' %}active{% endif %}">
+        <div class="tab-content {% if active_tab == 'simple' %}active{% endif %}" id="simple-tab">
             <div class="content">
                 <div class="form-section">
-                    <h2 style="margin-bottom: 20px; color: #333;">Simple Investment Calculator</h2>
+                    <h2>Simple Investment Calculator</h2>
                     
-                    <!-- Calculator Type Selector -->
+                    <!-- Simple calculator type selector -->
                     <div class="simple-calc-type-selector">
-                        <button type="button" class="simple-calc-type-btn active" onclick="switchSimpleCalculator('sip')">
-                            <span class="calculator-icon">📊</span> SIP
+                        <button type="button" class="simple-calc-type-btn active" onclick="switchSimpleCalc('sip')">
+                            <span class="calculator-icon">📈</span>SIP
                         </button>
-                        <button type="button" class="simple-calc-type-btn" onclick="switchSimpleCalculator('lumpsum')">
-                            <span class="calculator-icon">💰</span> Lumpsum
+                        <button type="button" class="simple-calc-type-btn" onclick="switchSimpleCalc('lumpsum')">
+                            <span class="calculator-icon">💰</span>Lumpsum
                         </button>
                     </div>
 
-                    <form id="simple-form">
-                        <div id="sip-simple-fields">
+                    <form method="post" id="simple-form">
+                        <input type="hidden" name="form_type" value="simple">
+                        <input type="hidden" name="calculator_type" value="sip" id="simple-calc-type">
+
+                        <!-- SIP Fields -->
+                        <div id="simple-sip-fields">
                             <div class="form-group">
                                 <label for="simple_monthly_sip">Monthly SIP Amount (₹)</label>
-                                <input type="number" id="simple_monthly_sip" name="simple_monthly_sip" 
-                                       value="5000" required min="100" step="100">
+                                <input type="number" id="simple_monthly_sip" name="monthly_sip" 
+                                       value="{{ form_data.get('monthly_sip', 5000) }}" min="100" step="100" required>
                             </div>
                         </div>
 
-                        <div id="lumpsum-simple-fields" style="display: none;">
+                        <!-- Lumpsum Fields -->
+                        <div id="simple-lumpsum-fields" style="display: none;">
                             <div class="form-group">
-                                <label for="simple_lumpsum_amount">Lumpsum Investment Amount (₹)</label>
-                                <input type="number" id="simple_lumpsum_amount" name="simple_lumpsum_amount" 
-                                       value="100000" required min="1000" step="1000">
+                                <label for="simple_lumpsum_amount">Investment Amount (₹)</label>
+                                <input type="number" id="simple_lumpsum_amount" name="lumpsum_amount" 
+                                       value="{{ form_data.get('lumpsum_amount', 100000) }}" min="1000" step="1000">
                             </div>
                         </div>
 
-                        <div id="common-simple-fields">
-                            <div class="form-group">
-                                <label for="simple_annual_return">Expected Annual Return (%)</label>
-                                <input type="number" id="simple_annual_return" name="simple_annual_return" 
-                                       value="12" required min="1" max="30" step="0.1">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="simple_years">Investment Period (Years)</label>
-                                <input type="number" id="simple_years" name="simple_years" 
-                                       value="10" required min="1" max="50">
-                            </div>
+                        <!-- Common Fields -->
+                        <div class="form-group">
+                            <label for="simple_annual_return">Expected Annual Return (%)</label>
+                            <input type="number" id="simple_annual_return" name="annual_return" 
+                                   value="{{ (form_data.get('annual_return', 0.12) * 100) | round(1) }}" 
+                                   min="1" max="30" step="0.1" required>
                         </div>
 
-                        <input type="hidden" id="simple_calculator_type" value="sip">
-                        <button type="button" class="calculate-btn" onclick="calculateSimple()">Calculate Returns</button>
+                        <div class="form-group">
+                            <label for="simple_years">Investment Duration (Years)</label>
+                            <input type="number" id="simple_years" name="years" 
+                                   value="{{ form_data.get('years', 10) }}" min="1" max="50" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="simple_expense_ratio">Expense Ratio (%)</label>
+                            <input type="number" id="simple_expense_ratio" name="expense_ratio" 
+                                   value="{{ (form_data.get('expense_ratio', 0.01) * 100) | round(2) }}" 
+                                   min="0" max="5" step="0.01">
+                        </div>
+
+                        <!-- Hidden fields with default values -->
+                        <input type="hidden" name="inflation_rate" value="6">
+                        <input type="hidden" name="ltcg_rate" value="10">
+                        <input type="hidden" name="stcg_rate" value="15">
+
+                        <button type="submit" class="calculate-btn">Calculate Returns</button>
                     </form>
                 </div>
 
                 <div class="results-section">
-                    <div id="simple-results">
-                        <div class="no-results">
-                            <h2>Enter your investment details</h2>
-                            <p>Fill in the form to calculate your investment returns.</p>
+                    <h2>Results</h2>
+                    {% if result and active_tab == 'simple' %}
+                        <div class="simple-results">
+                            <div class="result-item">
+                                <div class="result-label">Total Invested</div>
+                                <div class="result-value">₹{{ result.total_invested | with_unit }}</div>
+                            </div>
+                            <div class="result-item highlight">
+                                <div class="result-label">Final Corpus</div>
+                                <div class="result-value">₹{{ result.final_corpus | with_unit }}</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Capital Gains</div>
+                                <div class="result-value">₹{{ result.capital_gains | with_unit }}</div>
+                            </div>
+                            <div class="result-item tax">
+                                <div class="result-label">{{ result.tax_type }} Tax</div>
+                                <div class="result-value">₹{{ result.capital_gains_tax | with_unit }}</div>
+                            </div>
                         </div>
-                    </div>
-                    <div id="simple-chart-container" class="chart-container" style="display: none;">
-                        <h3 style="margin-bottom: 15px; color: #333;">Investment Breakdown</h3>
-                        <canvas id="simpleChart"></canvas>
-                    </div>
+
+                        {% if chart %}
+                        <div class="chart-container">
+                            <img src="data:image/png;base64,{{ chart }}" alt="Investment Breakdown Chart">
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="no-results">
+                            <p>Enter your investment details and click "Calculate Returns" to see the results.</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
         <!-- Advanced Calculator Tab -->
-        <div id="advanced-tab" class="tab-content {% if active_tab == 'advanced' %}active{% endif %}">
+        <div class="tab-content {% if active_tab == 'advanced' %}active{% endif %}" id="advanced-tab">
             <div class="content">
                 <div class="form-section">
-                    <h2 style="margin-bottom: 20px; color: #333;">Advanced Investment Calculator</h2>
+                    <h2>Advanced Investment Calculator</h2>
                     
-                    <form method="POST">
+                    <!-- Calculator type selector -->
+                    <div class="calculator-type-selector">
+                        <button type="button" class="calc-type-btn {% if calculator_type == 'sip' %}active{% endif %}" onclick="switchCalculator('sip')">
+                            <span class="calculator-icon">📈</span>SIP
+                        </button>
+                        <button type="button" class="calc-type-btn {% if calculator_type == 'lumpsum' %}active{% endif %}" onclick="switchCalculator('lumpsum')">
+                            <span class="calculator-icon">💰</span>Lumpsum
+                        </button>
+                    </div>
+
+                    <form method="post" id="advanced-form">
                         <input type="hidden" name="form_type" value="advanced">
-                        
-                        <!-- Calculator Type Selector -->
-                        <div class="calculator-type-selector">
-                            <button type="button" class="calc-type-btn {% if calculator_type == 'sip' and active_tab == 'advanced' %}active{% elif active_tab != 'advanced' %}active{% endif %}" onclick="switchCalculator('sip')">
-                                <span class="calculator-icon">📊</span> SIP
-                            </button>
-                            <button type="button" class="calc-type-btn {% if calculator_type == 'lumpsum' and active_tab == 'advanced' %}active{% endif %}" onclick="switchCalculator('lumpsum')">
-                                <span class="calculator-icon">💰</span> Lumpsum
-                            </button>
-                        </div>
+                        <input type="hidden" name="calculator_type" value="{{ calculator_type }}" id="calc-type">
 
-                        <input type="hidden" name="calculator_type" id="calculator_type" value="{% if active_tab == 'advanced' %}{{ calculator_type }}{% else %}sip{% endif %}">
-
-                        <!-- SIP Fields -->
-                        <div id="sip-fields" {% if active_tab == 'advanced' and calculator_type != 'sip' %}style="display: none;"{% elif active_tab != 'advanced' %}style="display: block;"{% endif %}>
+                        <!-- SIP specific fields -->
+                        <div id="sip-fields" {% if calculator_type != 'sip' %}style="display: none;"{% endif %}>
                             <div class="form-group">
                                 <label for="monthly_sip">Monthly SIP Amount (₹)</label>
                                 <input type="number" id="monthly_sip" name="monthly_sip" 
-                                       value="{{ form_data.monthly_sip if form_data.monthly_sip is defined else 5000 }}" min="100" step="100">
+                                       value="{{ form_data.get('monthly_sip', 5000) }}" min="100" step="100" required>
                             </div>
                         </div>
 
-                        <!-- Lumpsum Fields -->
-                        <div id="lumpsum-fields" {% if active_tab != 'advanced' or calculator_type != 'lumpsum' %}style="display: none;"{% endif %}>
+                        <!-- Lumpsum specific fields -->
+                        <div id="lumpsum-fields" {% if calculator_type != 'lumpsum' %}style="display: none;"{% endif %}>
                             <div class="form-group">
-                                <label for="lumpsum_amount">Lumpsum Investment Amount (₹)</label>
+                                <label for="lumpsum_amount">Investment Amount (₹)</label>
                                 <input type="number" id="lumpsum_amount" name="lumpsum_amount" 
-                                       value="{{ form_data.lumpsum_amount if form_data.lumpsum_amount is defined else 100000 }}" min="1000" step="1000">
+                                       value="{{ form_data.get('lumpsum_amount', 100000) }}" min="1000" step="1000">
                             </div>
                         </div>
 
-                        <!-- Common Fields for SIP/Lumpsum -->
-                        <div id="sip-lumpsum-common">
-                            <div class="form-group">
-                                <label for="annual_return">Expected Annual Return (%)</label>
-                                <input type="number" id="annual_return" name="annual_return" 
-                                       value="{{ (form_data.annual_return * 100) if form_data.annual_return is defined else 12 }}" 
-                                       required min="1" max="30" step="0.1">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="expense_ratio">Expense Ratio (%)</label>
-                                <input type="number" id="expense_ratio" name="expense_ratio" 
-                                       value="{{ (form_data.expense_ratio * 100) if form_data.expense_ratio is defined else 1 }}" 
-                                       required min="0" max="5" step="0.1">
-                            </div>
-                        </div>
-
-                        <!-- Common Years Field -->
+                        <!-- Common fields -->
                         <div class="form-group">
-                            <label for="years">Investment Period (Years)</label>
-                            <input type="number" id="years" name="years" 
-                                   value="{{ form_data.years if form_data.years is defined else 10 }}" required min="1" max="50">
+                            <label for="annual_return">Expected Annual Return (%)</label>
+                            <input type="number" id="annual_return" name="annual_return" 
+                                   value="{{ (form_data.get('annual_return', 0.12) * 100) | round(1) }}" 
+                                   min="1" max="30" step="0.1" required>
                         </div>
 
+                        <div class="form-group">
+                            <label for="expense_ratio">Expense Ratio (%)</label>
+                            <input type="number" id="expense_ratio" name="expense_ratio" 
+                                   value="{{ (form_data.get('expense_ratio', 0.01) * 100) | round(2) }}" 
+                                   min="0" max="5" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="years">Investment Duration (Years)</label>
+                            <input type="number" id="years" name="years" 
+                                   value="{{ form_data.get('years', 10) }}" min="1" max="50" required>
+                        </div>
+
+                        <!-- Advanced options -->
                         <div class="advanced-section">
                             <button type="button" class="advanced-toggle" onclick="toggleAdvanced()">
-                                <span class="arrow">▼</span> Advanced Options
+                                <span>Advanced Options</span>
+                                <span class="arrow" id="advanced-arrow">▼</span>
                             </button>
                             
-                            <div class="advanced-options" id="advancedOptions">
-                                <div class="form-group">
-                                    <label for="inflation_rate">Inflation Rate (% per year)</label>
-                                    <input type="number" id="inflation_rate" name="inflation_rate" 
-                                           value="{{ (form_data.inflation_rate * 100) if form_data.inflation_rate is defined else 6 }}" 
-                                           min="0" max="15" step="0.1">
-                                </div>
-
+                            <div class="advanced-options" id="advanced-options">
                                 <div class="tax-info">
-                                    <strong>Capital Gains Tax Information:</strong><br>
-                                    • <strong>LTCG (Long Term):</strong> Applied to gains from investments held for more than 1 year<br>
-                                    • <strong>STCG (Short Term):</strong> Applied to gains from investments held for 1 year or less<br>
-                                    • Current rates: LTCG ~10-12.5%, STCG ~15-30% (varies by asset class)
+                                    <strong>Tax Information:</strong><br>
+                                    LTCG (Long Term Capital Gains) applies after 1 year. First ₹1 Lakh is tax-free.<br>
+                                    STCG (Short Term Capital Gains) applies for investments ≤ 1 year.
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="ltcg_rate">LTCG Tax Rate (% on gains)</label>
+                                    <label for="inflation_rate">Inflation Rate (%)</label>
+                                    <input type="number" id="inflation_rate" name="inflation_rate" 
+                                           value="{{ (form_data.get('inflation_rate', 0.06) * 100) | round(1) }}" 
+                                           min="0" max="20" step="0.1">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="ltcg_rate">LTCG Tax Rate (%)</label>
                                     <input type="number" id="ltcg_rate" name="ltcg_rate" 
-                                           value="{{ (form_data.ltcg_rate * 100) if form_data.ltcg_rate is defined else 10 }}" 
+                                           value="{{ (form_data.get('ltcg_rate', 0.10) * 100) | round(1) }}" 
                                            min="0" max="50" step="0.1">
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="stcg_rate">STCG Tax Rate (% on gains)</label>
+                                    <label for="stcg_rate">STCG Tax Rate (%)</label>
                                     <input type="number" id="stcg_rate" name="stcg_rate" 
-                                           value="{{ (form_data.stcg_rate * 100) if form_data.stcg_rate is defined else 15 }}" 
+                                           value="{{ (form_data.get('stcg_rate', 0.15) * 100) | round(1) }}" 
                                            min="0" max="50" step="0.1">
                                 </div>
                             </div>
                         </div>
 
-                        <button type="submit" class="calculate-btn">Calculate Investment Returns</button>
+                        <button type="submit" class="calculate-btn">Calculate Returns</button>
                     </form>
                 </div>
 
                 <div class="results-section">
+                    <h2>Investment Analysis</h2>
                     {% if result and active_tab == 'advanced' %}
-                        <h2 style="margin-bottom: 20px; color: #333;">Your Investment Results</h2>
-                        
                         <div class="results-grid">
                             <div class="result-item">
                                 <div class="result-label">Total Invested</div>
@@ -561,8 +652,13 @@
                             </div>
 
                             <div class="result-item">
-                                <div class="result-label">Gross Corpus (Before Fees & Tax)</div>
+                                <div class="result-label">Gross Corpus (Before Tax)</div>
                                 <div class="result-value">₹{{ result.gross_corpus | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item highlight">
+                                <div class="result-label">Final Corpus</div>
+                                <div class="result-value">₹{{ result.final_corpus | with_unit }}</div>
                             </div>
 
                             <div class="result-item">
@@ -580,9 +676,9 @@
                                 <div class="result-value">₹{{ result.fees_paid | with_unit }}</div>
                             </div>
 
-                            <div class="result-item highlight">
-                                <div class="result-label">Final Corpus (After Tax)</div>
-                                <div class="result-value">₹{{ result.corpus_after_tax | with_unit }}</div>
+                            <div class="result-item">
+                                <div class="result-label">Net Returns</div>
+                                <div class="result-value">₹{{ result.net_return | with_unit }}</div>
                             </div>
 
                             <div class="result-item">
@@ -593,14 +689,12 @@
 
                         {% if chart %}
                         <div class="chart-container">
-                            <h3 style="margin-bottom: 15px; color: #333;">Investment Breakdown</h3>
-                            <img src="data:image/png;base64,{{ chart }}" alt="Investment Breakdown">
+                            <img src="data:image/png;base64,{{ chart }}" alt="Investment Breakdown Chart">
                         </div>
                         {% endif %}
                     {% else %}
                         <div class="no-results">
-                            <h2>Enter your investment details</h2>
-                            <p>Fill in the form to calculate your investment returns with tax considerations.</p>
+                            <p>Enter your investment details and click "Calculate Returns" to see detailed analysis.</p>
                         </div>
                     {% endif %}
                 </div>
@@ -608,41 +702,46 @@
         </div>
 
         <!-- FD Calculator Tab -->
-        <div id="fd-tab" class="tab-content {% if active_tab == 'fd' %}active{% endif %}">
+        <div class="tab-content {% if active_tab == 'fd' %}active{% endif %}" id="fd-tab">
             <div class="content">
                 <div class="form-section">
-                    <h2 style="margin-bottom: 20px; color: #333;">Fixed Deposit Calculator</h2>
+                    <h2>Fixed Deposit Calculator</h2>
                     
-                    <form method="POST">
+                    <div class="fd-info">
+                        <strong>Fixed Deposit Information:</strong><br>
+                        Calculate returns on your Fixed Deposit investments with compound interest.
+                    </div>
+
+                    <form method="post" id="fd-form">
                         <input type="hidden" name="form_type" value="fd">
-                        
+
                         <div class="form-group">
-                            <label for="fd_principal_amount">FD Principal Amount (₹)</label>
+                            <label for="fd_principal_amount">Principal Amount (₹)</label>
                             <input type="number" id="fd_principal_amount" name="fd_principal_amount" 
-                                   value="{{ form_data.principal_amount if form_data.principal_amount is defined else 100000 }}" required min="1000" step="1000">
+                                   value="{{ form_data.get('principal_amount', 100000) }}" min="1000" step="1000" required>
                         </div>
-                        
+
                         <div class="form-group">
-                            <label for="fd_annual_interest_rate">Interest Rate (% per annum)</label>
+                            <label for="fd_annual_interest_rate">Annual Interest Rate (%)</label>
                             <input type="number" id="fd_annual_interest_rate" name="fd_annual_interest_rate" 
-                                   value="{{ (form_data.annual_interest_rate * 100) | round(2) if form_data.annual_interest_rate is defined else 7 }}" 
-                                   required min="1" max="15" step="0.1">
+                                   value="{{ (form_data.get('annual_interest_rate', 0.07) * 100) | round(2) }}" 
+                                   min="1" max="15" step="0.01" required>
                         </div>
-                        
+
                         <div class="form-group">
-                            <label for="fd_years">Investment Period (Years)</label>
+                            <label for="fd_years">Investment Duration (Years)</label>
                             <input type="number" id="fd_years" name="fd_years" 
-                                   value="{{ form_data.years if form_data.years is defined else 10 }}" required min="1" max="50">
+                                   value="{{ form_data.get('years', 5) }}" min="1" max="20" required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="fd_compounding_frequency">Compounding Frequency</label>
                             <select id="fd_compounding_frequency" name="fd_compounding_frequency" required>
-                                <option value="yearly" {% if form_data.compounding_frequency == 'yearly' %}selected{% endif %}>Yearly</option>
-                                <option value="half-yearly" {% if form_data.compounding_frequency == 'half-yearly' %}selected{% endif %}>Half-Yearly</option>
-                                <option value="quarterly" {% if form_data.compounding_frequency == 'quarterly' or form_data.compounding_frequency is not defined %}selected{% endif %}>Quarterly</option>
-                                <option value="monthly" {% if form_data.compounding_frequency == 'monthly' %}selected{% endif %}>Monthly</option>
-                                <option value="daily" {% if form_data.compounding_frequency == 'daily' %}selected{% endif %}>Daily</option>
+                                <option value="yearly" {% if form_data.get('compounding_frequency') == 'yearly' %}selected{% endif %}>Yearly</option>
+                                <option value="half-yearly" {% if form_data.get('compounding_frequency') == 'half-yearly' %}selected{% endif %}>Half-Yearly</option>
+                                <option value="quarterly" {% if form_data.get('compounding_frequency') == 'quarterly' or not form_data.get('compounding_frequency') %}selected{% endif %}>Quarterly</option>
+                                <option value="monthly" {% if form_data.get('compounding_frequency') == 'monthly' %}selected{% endif %}>Monthly</option>
+                                <option value="daily" {% if form_data.get('compounding_frequency') == 'daily' %}selected{% endif %}>Daily</option>
                             </select>
                         </div>
 
@@ -651,41 +750,130 @@
                 </div>
 
                 <div class="results-section">
-                    {% if result and active_tab == 'fd' %}
-                        <h2 style="margin-bottom: 20px; color: #333;">Your Fixed Deposit Results</h2>
-                        
+                    <h2>FD Analysis</h2>
+                    {% if result and calculator_type == 'fd' %}
                         <div class="results-grid">
-                            <div class="result-item">
+                            <div class="result-item fd-specific">
                                 <div class="result-label">Principal Amount</div>
                                 <div class="result-value">₹{{ result.principal_amount | with_unit }}</div>
                             </div>
 
-                            <div class="result-item">
-                                <div class="result-label">Interest Earned</div>
-                                <div class="result-value">₹{{ result.interest_earned | with_unit }}</div>
-                            </div>
-
-                            <div class="result-item highlight">
+                            <div class="result-item fd-specific highlight">
                                 <div class="result-label">Maturity Amount</div>
                                 <div class="result-value">₹{{ result.maturity_amount | with_unit }}</div>
                             </div>
 
                             <div class="result-item fd-specific">
+                                <div class="result-label">Interest Earned</div>
+                                <div class="result-value">₹{{ result.interest_earned | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item fd-specific">
                                 <div class="result-label">Effective Annual Rate</div>
-                                <div class="result-value">{{ result.effective_rate }}% p.a.</div>
+                                <div class="result-value">{{ result.effective_rate }}%</div>
                             </div>
                         </div>
 
                         {% if chart %}
                         <div class="chart-container">
-                            <h3 style="margin-bottom: 15px; color: #333;">Fixed Deposit Breakdown</h3>
-                            <img src="data:image/png;base64,{{ chart }}" alt="Fixed Deposit Breakdown">
+                            <img src="data:image/png;base64,{{ chart }}" alt="FD Breakdown Chart">
                         </div>
                         {% endif %}
                     {% else %}
                         <div class="no-results">
-                            <h2>Enter your FD details</h2>
-                            <p>Fill in the form to calculate your Fixed Deposit returns.</p>
+                            <p>Enter your FD details and click "Calculate FD Returns" to see the analysis.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- RD Calculator Tab -->
+        <div class="tab-content {% if active_tab == 'rd' %}active{% endif %}" id="rd-tab">
+            <div class="content">
+                <div class="form-section">
+                    <h2>Recurring Deposit Calculator</h2>
+                    
+                    <div class="rd-info">
+                        <strong>Recurring Deposit Information:</strong><br>
+                        Calculate returns on your monthly RD investments with compound interest.
+                    </div>
+
+                    <form method="post" id="rd-form">
+                        <input type="hidden" name="form_type" value="rd">
+
+                        <div class="form-group">
+                            <label for="rd_monthly_deposit">Monthly Deposit Amount (₹)</label>
+                            <input type="number" id="rd_monthly_deposit" name="rd_monthly_deposit" 
+                                   value="{{ form_data.get('monthly_deposit', 5000) }}" min="100" step="100" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rd_annual_interest_rate">Annual Interest Rate (%)</label>
+                            <input type="number" id="rd_annual_interest_rate" name="rd_annual_interest_rate" 
+                                   value="{{ (form_data.get('annual_interest_rate', 0.07) * 100) | round(2) }}" 
+                                   min="1" max="15" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rd_years">Investment Duration (Years)</label>
+                            <input type="number" id="rd_years" name="rd_years" 
+                                   value="{{ form_data.get('years', 5) }}" min="1" max="20" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rd_compounding_frequency">Compounding Frequency</label>
+                            <select id="rd_compounding_frequency" name="rd_compounding_frequency" required>
+                                <option value="yearly" {% if form_data.get('compounding_frequency') == 'yearly' %}selected{% endif %}>Yearly</option>
+                                <option value="half-yearly" {% if form_data.get('compounding_frequency') == 'half-yearly' %}selected{% endif %}>Half-Yearly</option>
+                                <option value="quarterly" {% if form_data.get('compounding_frequency') == 'quarterly' or not form_data.get('compounding_frequency') %}selected{% endif %}>Quarterly</option>
+                                <option value="monthly" {% if form_data.get('compounding_frequency') == 'monthly' %}selected{% endif %}>Monthly</option>
+                                <option value="daily" {% if form_data.get('compounding_frequency') == 'daily' %}selected{% endif %}>Daily</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="calculate-btn">Calculate RD Returns</button>
+                    </form>
+                </div>
+
+                <div class="results-section">
+                    <h2>RD Analysis</h2>
+                    {% if result and calculator_type == 'rd' %}
+                        <div class="results-grid">
+                            <div class="result-item rd-specific">
+                                <div class="result-label">Monthly Deposit</div>
+                                <div class="result-value">₹{{ result.monthly_deposit | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item rd-specific">
+                                <div class="result-label">Total Invested</div>
+                                <div class="result-value">₹{{ result.total_invested | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item rd-specific highlight">
+                                <div class="result-label">Maturity Amount</div>
+                                <div class="result-value">₹{{ result.maturity_amount | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item rd-specific">
+                                <div class="result-label">Interest Earned</div>
+                                <div class="result-value">₹{{ result.interest_earned | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item rd-specific">
+                                <div class="result-label">Effective Annual Rate</div>
+                                <div class="result-value">{{ result.effective_rate }}%</div>
+                            </div>
+                        </div>
+
+                        {% if chart %}
+                        <div class="chart-container">
+                            <img src="data:image/png;base64,{{ chart }}" alt="RD Breakdown Chart">
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="no-results">
+                            <p>Enter your RD details and click "Calculate RD Returns" to see the analysis.</p>
                         </div>
                     {% endif %}
                 </div>
@@ -693,98 +881,91 @@
         </div>
 
         <!-- SWP Calculator Tab -->
-        <div id="swp-tab" class="tab-content {% if active_tab == 'swp' %}active{% endif %}">
+        <div class="tab-content {% if active_tab == 'swp' %}active{% endif %}" id="swp-tab">
             <div class="content">
                 <div class="form-section">
-                    <h2 style="margin-bottom: 20px; color: #333;">SWP (Systematic Withdrawal Plan) Calculator</h2>
+                    <h2>SWP Calculator</h2>
                     
-                    <form method="POST">
+                    <div class="swp-info">
+                        <strong>Systematic Withdrawal Plan (SWP) Information:</strong><br>
+                        Calculate how long your corpus will last with regular monthly withdrawals.
+                    </div>
+
+                    <form method="post" id="swp-form">
                         <input type="hidden" name="form_type" value="swp">
-                        
+
                         <div class="form-group">
                             <label for="swp_initial_corpus">Initial Corpus (₹)</label>
                             <input type="number" id="swp_initial_corpus" name="swp_initial_corpus" 
-                                   value="{{ form_data.initial_corpus if form_data.initial_corpus is defined else 1000000 }}" required min="10000" step="10000">
+                                   value="{{ form_data.get('initial_corpus', 1000000) }}" min="10000" step="10000" required>
                         </div>
-                        
+
                         <div class="form-group">
-                            <label for="swp_monthly_withdrawal">Monthly Withdrawal Amount (₹)</label>
+                            <label for="swp_monthly_withdrawal">Monthly Withdrawal (₹)</label>
                             <input type="number" id="swp_monthly_withdrawal" name="swp_monthly_withdrawal" 
-                                   value="{{ form_data.monthly_withdrawal if form_data.monthly_withdrawal is defined else 10000 }}" required min="1000" step="1000">
+                                   value="{{ form_data.get('monthly_withdrawal', 10000) }}" min="100" step="100" required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="swp_annual_return">Expected Annual Return (%)</label>
                             <input type="number" id="swp_annual_return" name="swp_annual_return" 
-                                   value="{{ (form_data.annual_return * 100) if form_data.annual_return is defined else 12 }}" 
-                                   required min="1" max="30" step="0.1">
+                                   value="{{ (form_data.get('annual_return', 0.12) * 100) | round(1) }}" 
+                                   min="1" max="30" step="0.1" required>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="swp_expense_ratio">Expense Ratio (%)</label>
                             <input type="number" id="swp_expense_ratio" name="swp_expense_ratio" 
-                                   value="{{ (form_data.expense_ratio * 100) if form_data.expense_ratio is defined else 1 }}" 
-                                   min="0" max="5" step="0.1">
+                                   value="{{ (form_data.get('expense_ratio', 0.01) * 100) | round(2) }}" 
+                                   min="0" max="5" step="0.01">
                         </div>
 
-                        <div class="advanced-section">
-                            <button type="button" class="advanced-toggle" onclick="toggleSWPAdvanced()">
-                                <span class="arrow">▼</span> Advanced Options
-                            </button>
-                            
-                            <div class="advanced-options" id="swpAdvancedOptions">
-                                <div class="form-group">
-                                    <label for="swp_inflation_rate">Inflation Rate (% per year)</label>
-                                    <input type="number" id="swp_inflation_rate" name="swp_inflation_rate" 
-                                           value="{{ (form_data.inflation_rate * 100) if form_data.inflation_rate is defined else 6 }}" 
-                                           min="0" max="15" step="0.1">
-                                </div>
-
-                                <div class="tax-info">
-                                    <strong>SWP Information:</strong><br>
-                                    • <strong>Withdrawal Strategy:</strong> Fixed amount withdrawn monthly<br>
-                                    • <strong>Inflation Impact:</strong> Withdrawals can be adjusted for inflation<br>
-                                    • <strong>Returns:</strong> Remaining corpus continues to earn returns<br>
-                                    • Calculate how long your corpus will sustain regular withdrawals
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label for="swp_inflation_rate">Inflation Rate (%)</label>
+                            <input type="number" id="swp_inflation_rate" name="swp_inflation_rate" 
+                                   value="{{ (form_data.get('inflation_rate', 0.06) * 100) | round(1) }}" 
+                                   min="0" max="20" step="0.1">
                         </div>
 
-                        <button type="submit" class="calculate-btn">Calculate SWP Duration</button>
+                        <button type="submit" class="calculate-btn">Calculate SWP</button>
                     </form>
                 </div>
 
                 <div class="results-section">
-                    {% if result and active_tab == 'swp' %}
-                        <h2 style="margin-bottom: 20px; color: #333;">Your SWP Results</h2>
-                        
+                    <h2>SWP Analysis</h2>
+                    {% if result and calculator_type == 'swp' %}
                         <div class="results-grid">
-                            <div class="result-item">
+                            <div class="result-item swp-specific">
                                 <div class="result-label">Initial Corpus</div>
                                 <div class="result-value">₹{{ result.initial_corpus | with_unit }}</div>
                             </div>
 
-                            <div class="result-item">
+                            <div class="result-item swp-specific">
                                 <div class="result-label">Monthly Withdrawal</div>
                                 <div class="result-value">₹{{ result.monthly_withdrawal | with_unit }}</div>
                             </div>
 
-                            <div class="result-item highlight">
-                                <div class="result-label">Withdrawal Duration</div>
-                                <div class="result-value">{{ result.duration_years }} Years</div>
-                            </div>
-
-                            <div class="result-item">
-                                <div class="result-label">Total Amount Withdrawn</div>
+                            <div class="result-item swp-specific">
+                                <div class="result-label">Total Withdrawn</div>
                                 <div class="result-value">₹{{ result.total_withdrawn | with_unit }}</div>
                             </div>
 
-                            <div class="result-item">
+                            <div class="result-item swp-specific highlight">
+                                <div class="result-label">Duration</div>
+                                <div class="result-value">{{ result.duration_years }} Years</div>
+                            </div>
+
+                            <div class="result-item swp-specific">
                                 <div class="result-label">Remaining Corpus</div>
                                 <div class="result-value">₹{{ result.remaining_corpus | with_unit }}</div>
                             </div>
 
-                            <div class="result-item fd-specific">
+                            <div class="result-item swp-specific">
+                                <div class="result-label">Avg Monthly Withdrawal</div>
+                                <div class="result-value">₹{{ result.avg_monthly_withdrawal | with_unit }}</div>
+                            </div>
+
+                            <div class="result-item swp-specific">
                                 <div class="result-label">Total Returns Earned</div>
                                 <div class="result-value">₹{{ result.total_returns_earned | with_unit }}</div>
                             </div>
@@ -794,285 +975,106 @@
                                 <div class="result-label">Status</div>
                                 <div class="result-value">Corpus Exhausted</div>
                             </div>
-                            {% else %}
-                            <div class="result-item">
-                                <div class="result-label">Status</div>
-                                <div class="result-value">Corpus Remaining</div>
-                            </div>
                             {% endif %}
                         </div>
 
                         {% if chart %}
                         <div class="chart-container">
-                            <h3 style="margin-bottom: 15px; color: #333;">SWP Analysis (First 5 Years)</h3>
-                            <img src="data:image/png;base64,{{ chart }}" alt="SWP Analysis">
+                            <img src="data:image/png;base64,{{ chart }}" alt="SWP Analysis Chart">
                         </div>
                         {% endif %}
                     {% else %}
                         <div class="no-results">
-                            <h2>Enter your SWP details</h2>
-                            <p>Fill in the form to calculate how long your corpus will sustain regular withdrawals.</p>
+                            <p>Enter your SWP details and click "Calculate SWP" to see the analysis.</p>
                         </div>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <script>
-            // Tab switching functionality
-            function switchTab(tabName) {
-                // Hide all tab contents
-                const tabContents = document.querySelectorAll('.tab-content');
-                tabContents.forEach(content => content.classList.remove('active'));
-                
-                // Remove active class from all tab buttons
-                const tabButtons = document.querySelectorAll('.tab-btn');
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                
-                // Show selected tab content
-                document.getElementById(tabName + '-tab').classList.add('active');
-                
-                // Add active class to clicked button
-                event.target.classList.add('active');
+    <script>
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all tab buttons
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+        }
+
+        function switchCalculator(type) {
+            // Update hidden input
+            document.getElementById('calc-type').value = type;
+            
+            // Update button states
+            const buttons = document.querySelectorAll('.calc-type-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide appropriate fields
+            if (type === 'sip') {
+                document.getElementById('sip-fields').style.display = 'block';
+                document.getElementById('lumpsum-fields').style.display = 'none';
+            } else {
+                document.getElementById('sip-fields').style.display = 'none';
+                document.getElementById('lumpsum-fields').style.display = 'block';
             }
+        }
 
-            // Advanced calculator type switching
-            function switchCalculator(type) {
-                // Update hidden input
-                document.getElementById('calculator_type').value = type;
-                
-                // Switch button styles
-                const buttons = document.querySelectorAll('.calc-type-btn');
-                buttons.forEach(btn => btn.classList.remove('active'));
-                event.target.classList.add('active');
-                
-                // Show/hide appropriate fields
-                const sipFields = document.getElementById('sip-fields');
-                const lumpsumFields = document.getElementById('lumpsum-fields');
-                
-                // Reset required attributes
-                document.getElementById('monthly_sip').required = false;
-                document.getElementById('lumpsum_amount').required = false;
-                
-                if (type === 'sip') {
-                    sipFields.style.display = 'block';
-                    lumpsumFields.style.display = 'none';
-                    document.getElementById('monthly_sip').required = true;
-                } else if (type === 'lumpsum') {
-                    sipFields.style.display = 'none';
-                    lumpsumFields.style.display = 'block';
-                    document.getElementById('lumpsum_amount').required = true;
-                }
+        function switchSimpleCalc(type) {
+            // Update hidden input
+            document.getElementById('simple-calc-type').value = type;
+            
+            // Update button states
+            const buttons = document.querySelectorAll('.simple-calc-type-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide appropriate fields
+            if (type === 'sip') {
+                document.getElementById('simple-sip-fields').style.display = 'block';
+                document.getElementById('simple-lumpsum-fields').style.display = 'none';
+            } else {
+                document.getElementById('simple-sip-fields').style.display = 'none';
+                document.getElementById('simple-lumpsum-fields').style.display = 'block';
             }
+        }
 
-            // Simple calculator type switching
-            function switchSimpleCalculator(type) {
-                // Update hidden input
-                document.getElementById('simple_calculator_type').value = type;
-                
-                // Switch button styles
-                const buttons = document.querySelectorAll('.simple-calc-type-btn');
-                buttons.forEach(btn => btn.classList.remove('active'));
-                event.target.classList.add('active');
-                
-                // Show/hide appropriate fields
-                const sipFields = document.getElementById('sip-simple-fields');
-                const lumpsumFields = document.getElementById('lumpsum-simple-fields');
-                
-                if (type === 'sip') {
-                    sipFields.style.display = 'block';
-                    lumpsumFields.style.display = 'none';
-                } else if (type === 'lumpsum') {
-                    sipFields.style.display = 'none';
-                    lumpsumFields.style.display = 'block';
-                }
-                
-                // Update calculate button text
-                const calcBtn = document.querySelector('#simple-form .calculate-btn');
-                const buttonText = {
-                    'sip': 'Calculate SIP Returns',
-                    'lumpsum': 'Calculate Lumpsum Returns'
-                };
-                calcBtn.textContent = buttonText[type];
+        function toggleAdvanced() {
+            const options = document.getElementById('advanced-options');
+            const arrow = document.getElementById('advanced-arrow');
+            
+            if (options.classList.contains('show')) {
+                options.classList.remove('show');
+                arrow.classList.remove('rotated');
+            } else {
+                options.classList.add('show');
+                arrow.classList.add('rotated');
             }
+        }
 
-            // Global variable for the simple chart instance
-            let simpleChartInstance = null;
-
-            // Simple calculation function
-            function calculateSimple() {
-                const calculatorType = document.getElementById('simple_calculator_type').value;
-                const years = parseInt(document.getElementById('simple_years').value);
-                const annualReturn = parseFloat(document.getElementById('simple_annual_return').value) / 100;
-                
-                let totalInvested, corpus, totalReturns;
-                
-                if (calculatorType === 'sip') {
-                    const monthlySip = parseFloat(document.getElementById('simple_monthly_sip').value);
-                    
-                    if (!monthlySip || !annualReturn || !years) {
-                        alert('Please fill in all fields');
-                        return;
-                    }
-                    
-                    const totalMonths = years * 12;
-                    const monthlyReturn = Math.pow(1 + annualReturn, 1/12) - 1;
-                    
-                    corpus = 0;
-                    for (let month = 1; month <= totalMonths; month++) {
-                        corpus = (corpus + monthlySip) * (1 + monthlyReturn);
-                    }
-                    
-                    totalInvested = monthlySip * totalMonths;
-                    
-                } else if (calculatorType === 'lumpsum') {
-                    const lumpsumAmount = parseFloat(document.getElementById('simple_lumpsum_amount').value);
-                    
-                    if (!lumpsumAmount || !annualReturn || !years) {
-                        alert('Please fill in all fields');
-                        return;
-                    }
-                    
-                    totalInvested = lumpsumAmount;
-                    corpus = lumpsumAmount * Math.pow(1 + annualReturn, years);
-                }
-                
-                totalReturns = corpus - totalInvested;
-                
-                // Format numbers with Indian currency format
-                const formatCurrency = (value) => {
-                    const formatted = value.toLocaleString('en-IN', { 
-                        minimumFractionDigits: 0, 
-                        maximumFractionDigits: 0 
-                    });
-                    
-                    let unit = '';
-                    if (value >= 10000000) {
-                        unit = ` (${(value / 10000000).toFixed(2)} Cr)`;
-                    } else if (value >= 100000) {
-                        unit = ` (${(value / 100000).toFixed(2)} Lakh)`;
-                    }
-                    
-                    return formatted + unit;
-                };
-                
-                // Display results
-                const resultsDiv = document.getElementById('simple-results');
-                const calculatorName = {
-                    'sip': 'SIP',
-                    'lumpsum': 'Lumpsum'
-                }[calculatorType];
-                
-                resultsDiv.innerHTML = `
-                    <h2 style="margin-bottom: 20px; color: #333;">Your ${calculatorName} Results</h2>
-                    <div class="simple-results">
-                        <div class="result-item">
-                            <div class="result-label">Total Invested</div>
-                            <div class="result-value">₹${formatCurrency(totalInvested)}</div>
-                        </div>
-                        <div class="result-item">
-                            <div class="result-label">Total Returns</div>
-                            <div class="result-value">₹${formatCurrency(totalReturns)}</div>
-                        </div>
-                        <div class="result-item highlight">
-                            <div class="result-label">Final Corpus</div>
-                            <div class="result-value">₹${formatCurrency(corpus)}</div>
-                        </div>
-                    </div>
-                `;
-
-                // Create pie chart
-                const chartContainer = document.getElementById('simple-chart-container');
-                const ctx = document.getElementById('simpleChart').getContext('2d');
-
-                // Destroy previous chart instance if it exists
-                if (simpleChartInstance) {
-                    simpleChartInstance.destroy();
-                }
-
-                // Make chart container visible
-                chartContainer.style.display = 'block';
-
-                // Create new pie chart
-                simpleChartInstance = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Total Invested', 'Total Returns'],
-                        datasets: [{
-                            label: 'Investment Breakdown',
-                            data: [totalInvested, totalReturns],
-                            backgroundColor: ['#667eea', '#2ecc71'],
-                            borderColor: ['#ffffff', '#ffffff'],
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { position: 'top' },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        let label = context.label || '';
-                                        const value = context.parsed;
-                                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
-
-                                        if (label) { label += ': '; }
-                                        if (value !== null) {
-                                            label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
-                                            label += ` (${percentage}%)`;
-                                        }
-                                        return label;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
+        // Initialize calculator on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial calculator type for advanced tab
+            const calcType = document.getElementById('calc-type').value;
+            if (calcType === 'lumpsum') {
+                document.getElementById('sip-fields').style.display = 'none';
+                document.getElementById('lumpsum-fields').style.display = 'block';
             }
-
-            // Advanced calculator functions
-            function toggleAdvanced() {
-                const options = document.getElementById('advancedOptions');
-                const arrow = document.querySelector('.advanced-toggle .arrow');
-                
-                options.classList.toggle('show');
-                arrow.classList.toggle('rotated');
+            
+            // Set initial calculator type for simple tab
+            const simpleCalcType = document.getElementById('simple-calc-type').value;
+            if (simpleCalcType === 'lumpsum') {
+                document.getElementById('simple-sip-fields').style.display = 'none';
+                document.getElementById('simple-lumpsum-fields').style.display = 'block';
             }
-
-            // SWP Advanced Options Toggle Function - THIS WAS MISSING!
-            function toggleSWPAdvanced() {
-                const options = document.getElementById('swpAdvancedOptions');
-                const arrow = document.querySelector('#swp-tab .advanced-toggle .arrow');
-                
-                options.classList.toggle('show');
-                arrow.classList.toggle('rotated');
-            }
-
-            // Auto-show advanced options if any advanced field has a value
-            document.addEventListener('DOMContentLoaded', function() {
-                // For advanced calculator
-                const advancedFields = ['inflation_rate', 'ltcg_rate', 'stcg_rate'];
-                const hasAdvancedValues = advancedFields.some(field => {
-                    const input = document.getElementById(field);
-                    return input && input.value && parseFloat(input.value) > 0;
-                });
-
-                if (hasAdvancedValues) {
-                    toggleAdvanced();
-                }
-
-                // For SWP calculator
-                const swpAdvancedFields = ['swp_inflation_rate'];
-                const hasSWPAdvancedValues = swpAdvancedFields.some(field => {
-                    const input = document.getElementById(field);
-                    return input && input.value && parseFloat(input.value) > 0;
-                });
-
-                if (hasSWPAdvancedValues) {
-                    toggleSWPAdvanced();
-                }
-            });
-        </script>
+        });
+    </script>
 {% endblock %}

@@ -34,7 +34,10 @@ def robots_txt():
 @app.route('/ads.txt')
 def ads_txt():
     content = "google.com, pub-3229320652703762, DIRECT, f08c47fec0942fa0"
-    return content, 200, {'Content-Type': 'text/plain'}
+    response = app.make_response(content)
+    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+    response.headers['Cache-Control'] = 'public, max-age=86400'
+    return response
 
 @app.route("/privacy")
 def privacy():

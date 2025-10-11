@@ -446,20 +446,20 @@
                     
                     <!-- Simple calculator type selector -->
                     <div class="simple-calc-type-selector">
-                        <button type="button" class="simple-calc-type-btn active" onclick="switchSimpleCalc('sip')">
+                        <button type="button" class="simple-calc-type-btn {% if calculator_type == 'sip' %}active{% endif %}" onclick="switchSimpleCalc('sip')">
                             <span class="calculator-icon">📈</span>SIP
                         </button>
-                        <button type="button" class="simple-calc-type-btn" onclick="switchSimpleCalc('lumpsum')">
+                        <button type="button" class="simple-calc-type-btn {% if calculator_type == 'lumpsum' %}active{% endif %}" onclick="switchSimpleCalc('lumpsum')">
                             <span class="calculator-icon">💰</span>Lumpsum
                         </button>
                     </div>
 
                     <form method="post" id="simple-form">
                         <input type="hidden" name="form_type" value="simple">
-                        <input type="hidden" name="calculator_type" value="sip" id="simple-calc-type">
+                        <input type="hidden" name="calculator_type" value="{{ calculator_type }}" id="simple-calc-type">
 
                         <!-- SIP Fields -->
-                        <div id="simple-sip-fields">
+                        <div id="simple-sip-fields" {% if calculator_type != 'sip' %}style="display: none;"{% endif %}>
                             <div class="form-group">
                                 <label for="simple_monthly_sip">Monthly SIP Amount (₹)</label>
                                 <input type="number" id="simple_monthly_sip" name="monthly_sip" 
@@ -468,7 +468,7 @@
                         </div>
 
                         <!-- Lumpsum Fields -->
-                        <div id="simple-lumpsum-fields" style="display: none;">
+                        <div id="simple-lumpsum-fields" {% if calculator_type != 'lumpsum' %}style="display: none;"{% endif %}>
                             <div class="form-group">
                                 <label for="simple_lumpsum_amount">Investment Amount (₹)</label>
                                 <input type="number" id="simple_lumpsum_amount" name="lumpsum_amount" 
@@ -490,17 +490,11 @@
                                    value="{{ form_data.get('years', 10) }}" min="1" max="50" required>
                         </div>
 
-                        <div class="form-group">
-                            <label for="simple_expense_ratio">Expense Ratio (%)</label>
-                            <input type="number" id="simple_expense_ratio" name="expense_ratio" 
-                                   value="{{ (form_data.get('expense_ratio', 0.01) * 100) | round(2) }}" 
-                                   min="0" max="5" step="0.01">
-                        </div>
-
                         <!-- Hidden fields with default values -->
                         <input type="hidden" name="inflation_rate" value="6">
                         <input type="hidden" name="ltcg_rate" value="10">
                         <input type="hidden" name="stcg_rate" value="15">
+                        <input type="hidden" name="expense_ratio" value="1">
 
                         <button type="submit" class="calculate-btn">Calculate Returns</button>
                     </form>
@@ -517,14 +511,6 @@
                             <div class="result-item highlight">
                                 <div class="result-label">Final Corpus</div>
                                 <div class="result-value">₹{{ result.final_corpus | with_unit }}</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">Capital Gains</div>
-                                <div class="result-value">₹{{ result.capital_gains | with_unit }}</div>
-                            </div>
-                            <div class="result-item tax">
-                                <div class="result-label">{{ result.tax_type }} Tax</div>
-                                <div class="result-value">₹{{ result.capital_gains_tax | with_unit }}</div>
                             </div>
                         </div>
 
@@ -652,18 +638,13 @@
                             </div>
 
                             <div class="result-item">
-                                <div class="result-label">Gross Corpus (Before Tax)</div>
+                                <div class="result-label">Expected Corpus</div>
                                 <div class="result-value">₹{{ result.gross_corpus | with_unit }}</div>
                             </div>
 
-                            <div class="result-item highlight">
-                                <div class="result-label">Final Corpus</div>
-                                <div class="result-value">₹{{ result.final_corpus | with_unit }}</div>
-                            </div>
-
                             <div class="result-item">
-                                <div class="result-label">Capital Gains</div>
-                                <div class="result-value">₹{{ result.capital_gains | with_unit }}</div>
+                                <div class="result-label">Fees Paid (Expense Ratio)</div>
+                                <div class="result-value">₹{{ result.fees_paid | with_unit }}</div>
                             </div>
 
                             <div class="result-item tax">
@@ -671,18 +652,13 @@
                                 <div class="result-value">₹{{ result.capital_gains_tax | with_unit }}</div>
                             </div>
 
-                            <div class="result-item">
-                                <div class="result-label">Fees Paid</div>
-                                <div class="result-value">₹{{ result.fees_paid | with_unit }}</div>
+                            <div class="result-item highlight">
+                                <div class="result-label">Actual Corpus</div>
+                                <div class="result-value">₹{{ result.final_corpus | with_unit }}</div>
                             </div>
 
                             <div class="result-item">
-                                <div class="result-label">Net Returns</div>
-                                <div class="result-value">₹{{ result.net_return | with_unit }}</div>
-                            </div>
-
-                            <div class="result-item">
-                                <div class="result-label">Inflation Adjusted Corpus</div>
+                                <div class="result-label">Inflation Adjusted Actual Corpus</div>
                                 <div class="result-value">₹{{ result.inflation_adjusted_final_corpus | with_unit }}</div>
                             </div>
                         </div>

@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request
+from flask_mail import Mail, Message
+import os
+from flask import Flask, render_template, request, flash
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')  # Use non-GUI backend for server environments
@@ -7,13 +9,46 @@ import io
 import base64
 
 app = Flask(__name__)
+# It's a good practice to set a secret key for flashing messages
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a-default-secret-key')
+
+# Mail Configuration - Best to use environment variables for sensitive data
+app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', '1', 't']
+app.config['MAIL_USERNAME'] = os.environ.get('EMAIL_USER')
+app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASS') # For Gmail, use an "App Password"
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('EMAIL_USER')
+try:
+    mail = Mail(app)
+except Exception as e:
+    print(f"Error sending email: {e}") # For debugging
+    flash('There was an error sending your message. Please try again later.', 'danger')
 
 @app.route("/terms")
 def terms():
     return render_template("terms.html")
 
-@app.route("/contact")
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        message_body = request.form.get('message')
+
+        try:
+            msg = Message(
+                subject=f"New Contact Form Message from {name}",
+                recipients=[os.environ.get('EMAIL_USER')],  # Send to yourself
+                body=f"From: {name} <{email}>\n\n{message_body}"
+            )
+            mail.send(msg)
+            flash('Your message has been sent successfully!', 'success')
+        except Exception as e:
+            print(f"Error sending email: {e}") # For debugging
+            flash('There was an error sending your message. Please try again later.', 'danger')
+
+        return render_template("contact.html")
     return render_template("contact.html")
     
 @app.route('/googled31b5d709c031016.html')
@@ -400,6 +435,28 @@ def create_rd_pie_chart(total_invested, interest_earned):
     plt.close()
     return chart_data
 
+def create_simple_pie_chart(total_invested, net_return):
+    """Create a simple pie chart showing only invested amount and net return."""
+    labels = ['Total Invested', 'Net Return']
+    values = [total_invested, net_return]
+    colors = ['#3498db', '#2ecc71']
+    
+    # Filter out zero/negative values for a cleaner chart
+    filtered_data = [(label, value, color) for label, value, color in zip(labels, values, colors) if value > 0]
+    
+    if filtered_data:
+        labels, values, colors = zip(*filtered_data)
+        plt.figure(figsize=(8, 8))
+        plt.pie(values, labels=labels, autopct='%1.1f%%', colors=colors, startangle=90)
+        plt.title("Investment vs. Return")
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=150)
+    buf.seek(0)
+    chart_data = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+    plt.close()
+    return chart_data
 
 def create_swp_chart(corpus_values, monthly_withdrawals):
     """Create a line chart showing corpus depletion over time"""
@@ -565,36 +622,32 @@ def index():
                     form_data = {
                         "monthly_sip": int(request.form['monthly_sip']),
                         "annual_return": float(request.form['annual_return']) / 100,
-                        "expense_ratio": float(request.form['expense_ratio']) / 100,
+                        "expense_ratio": float(request.form.get('expense_ratio', 1)) / 100,
                         "years": int(request.form['years']),
                         "inflation_rate": float(request.form.get('inflation_rate', 6)) / 100,
                         "ltcg_rate": float(request.form.get('ltcg_rate', 10)) / 100,
                         "stcg_rate": float(request.form.get('stcg_rate', 15)) / 100,
                     }
                     result = calculate_sip(**form_data)
-                    chart = create_pie_chart(
+                    chart = create_simple_pie_chart(
                         result["total_invested"],
-                        result["net_return"],
-                        result["fees_paid"],
-                        result["capital_gains_tax"]
+                        result["final_corpus"] - result["total_invested"]
                     )
                 
                 elif calculator_type == 'lumpsum':
                     form_data = {
                         "lumpsum_amount": int(request.form['lumpsum_amount']),
                         "annual_return": float(request.form['annual_return']) / 100,
-                        "expense_ratio": float(request.form['expense_ratio']) / 100,
+                        "expense_ratio": float(request.form.get('expense_ratio', 1)) / 100,
                         "years": int(request.form['years']),
                         "inflation_rate": float(request.form.get('inflation_rate', 6)) / 100,
                         "ltcg_rate": float(request.form.get('ltcg_rate', 10)) / 100,
                         "stcg_rate": float(request.form.get('stcg_rate', 15)) / 100,
                     }
                     result = calculate_lumpsum(**form_data)
-                    chart = create_pie_chart(
+                    chart = create_simple_pie_chart(
                         result["total_invested"],
-                        result["net_return"],
-                        result["fees_paid"],
-                        result["capital_gains_tax"]
+                        result["final_corpus"] - result["total_invested"]
                     )
 
             except Exception as e:

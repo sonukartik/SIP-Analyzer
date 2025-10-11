@@ -1,6 +1,5 @@
-from flask_mail import Mail, Message
 import os
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')  # Use non-GUI backend for server environments
@@ -9,21 +8,6 @@ import io
 import base64
 
 app = Flask(__name__)
-# It's a good practice to set a secret key for flashing messages
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a-default-secret-key')
-
-# Mail Configuration - Best to use environment variables for sensitive data
-app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
-app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
-app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', '1', 't']
-app.config['MAIL_USERNAME'] = os.environ.get('EMAIL_USER')
-app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASS') # For Gmail, use an "App Password"
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('EMAIL_USER')
-try:
-    mail = Mail(app)
-except Exception as e:
-    print(f"Error sending email: {e}") # For debugging
-    flash('There was an error sending your message. Please try again later.', 'danger')
 
 @app.route("/terms")
 def terms():

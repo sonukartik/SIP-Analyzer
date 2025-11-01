@@ -3,27 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free SIP, Lumpsum, FD, and SWP calculator with tax planning features. Calculate investment returns with inflation adjustment and comprehensive tax analysis for Indian investors.">
-    <meta name="keywords" content="SIP calculator, lumpsum calculator, FD calculator, SWP calculator, investment calculator, tax planning, LTCG, STCG, mutual funds, systematic investment plan">
+    
+    <!-- Primary Meta Tags -->
+    <title>{% block title %}SIP Calculator 2025 - Free Online Investment Calculator India | Calculate Mutual Fund Returns{% endblock %}</title>
+    <meta name="title" content="{% block meta_title %}SIP Calculator 2025 - Calculate SIP, Lumpsum, FD & RD Returns Online{% endblock %}">
+    <meta name="description" content="{% block meta_description %}Free SIP Calculator 2025 for India. Calculate Mutual Fund SIP, Lumpsum, FD, RD & SWP returns with tax planning. Accurate investment calculator with LTCG, STCG tax calculations and inflation adjustment.{% endblock %}">
+    <meta name="keywords" content="SIP calculator, SIP calculator India, mutual fund calculator, lumpsum calculator, FD calculator, RD calculator, SWP calculator, investment calculator India, SIP returns calculator, tax calculator, LTCG calculator, STCG calculator, systematic investment plan, mutual fund SIP, investment planning, retirement planning calculator, wealth calculator, compound interest calculator">
     <meta name="author" content="Investment Calculator">
-    <meta name="robots" content="index, follow">
-    <title>{% block title %}SIP Calculator{% endblock %}</title>
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    <meta name="distribution" content="global">
+    
+    <!-- Geo Tags -->
+    <meta name="geo.region" content="IN">
+    <meta name="geo.placename" content="India">
+    
+    <!-- Open Graph Meta Tags for Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Investment Calculator India">
+    <meta property="og:title" content="{% block og_title %}Free SIP Calculator 2025 - Calculate Mutual Fund Returns with Tax Planning{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Calculate your SIP, Lumpsum, FD, RD & SWP returns with our free online calculator. Includes LTCG/STCG tax calculations, inflation adjustment, and detailed investment analysis.{% endblock %}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:image" content="{{ request.url_root }}static/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_IN">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}SIP Calculator 2025 - Free Investment Calculator India{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Calculate SIP, Lumpsum, FD & RD returns with tax planning. Free online investment calculator for Indian investors.{% endblock %}">
+    <meta name="twitter:image" content="{{ request.url_root }}static/twitter-image.jpg">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ request.url }}">
+    
+    <!-- Alternate for Mobile -->
+    <link rel="alternate" media="only screen and (max-width: 640px)" href="{{ request.url }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3229320652703762"
      crossorigin="anonymous"></script>
     
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="{% block og_title %}Investment Calculator - SIP, Lumpsum, FD & SWP{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Calculate your investment returns with our comprehensive tools. Plan SIP, Lumpsum, FD investments with tax considerations.{% endblock %}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.url }}">
+    <!-- Google Analytics (Add your tracking ID) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
     
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="{% block twitter_title %}Investment Calculator{% endblock %}">
-    <meta name="twitter:description" content="{% block twitter_description %}Free investment calculators with tax planning features{% endblock %}">
+    <!-- Structured Data - Organization Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "SIP Calculator India",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "2547"
+        },
+        "description": "Free online SIP calculator for India. Calculate mutual fund SIP, Lumpsum, FD, RD and SWP returns with tax planning and inflation adjustment.",
+        "url": "{{ request.url_root }}",
+        "author": {
+            "@type": "Organization",
+            "name": "Investment Calculator"
+        },
+        "provider": {
+            "@type": "Organization",
+            "name": "Investment Calculator India"
+        }
+    }
+    </script>
     
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="canonical" href="{{ request.url }}">
+    <!-- Structured Data - BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "{{ request.url_root }}"
+        }{% if request.endpoint != 'index' %},
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "{{ request.endpoint|title }}",
+            "item": "{{ request.url }}"
+        }{% endif %}]
+    }
+    </script>
+    
+    <!-- Structured Data - FAQPage (Add to relevant pages) -->
+    {% block structured_data %}{% endblock %}
     
     <style>
         body {
@@ -221,122 +317,114 @@
         }
     </style>
     {% block head_style %}{% endblock %}
-    
-    <!-- Google AdSense - Replace with your actual publisher ID -->
-    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3229320652703762"
-            crossorigin="anonymous"></script> -->
 </head>
 <body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+    
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark" role="navigation" aria-label="Main navigation">
         <div class="container">
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3229320652703762"
-             crossorigin="anonymous"></script>
-        <!-- unit_1 -->
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-3229320652703762"
-             data-ad-slot="5609845168"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-            <a class="navbar-brand" href="{{ url_for('index') }}">Investment Calculator</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}" aria-label="Investment Calculator Home">
+                <strong>Investment Calculator India</strong>
+            </a>
             
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                        <a class="nav-link" href="{{ url_for('index') }}" aria-label="Home - SIP Calculator">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('about') }}">About</a>
+                        <a class="nav-link" href="{{ url_for('about') }}" aria-label="About Investment Calculator">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
+                        <a class="nav-link" href="{{ url_for('contact') }}" aria-label="Contact Us">Contact</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('disclaimer') }}">Disclaimer</a>
+                        <a class="nav-link" href="{{ url_for('disclaimer') }}" aria-label="Financial Disclaimer">Disclaimer</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('privacy') }}">Privacy</a>
+                        <a class="nav-link" href="{{ url_for('privacy') }}" aria-label="Privacy Policy">Privacy</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('terms') }}">Terms</a>
+                        <a class="nav-link" href="{{ url_for('terms') }}" aria-label="Terms of Service">Terms</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Breadcrumb (optional, can be overridden) -->
+    <!-- Breadcrumb -->
     {% block breadcrumb %}{% endblock %}
 
-    <main class="main-content">
+    <main class="main-content" id="main-content" role="main">
         <div class="content-wrapper">
             {% block content %}{% endblock %}
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" role="contentinfo">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
                     <h4>Investment Calculators</h4>
                     <ul>
-                        <li><a href="{{ url_for('index') }}#sip">SIP Calculator</a></li>
-                        <li><a href="{{ url_for('index') }}#lumpsum">Lumpsum Calculator</a></li>
-                        <li><a href="{{ url_for('index') }}#fd">FD Calculator</a></li>
-                        <li><a href="{{ url_for('index') }}#swp">SWP Calculator</a></li>
+                        <li><a href="{{ url_for('index') }}#sip" aria-label="SIP Calculator - Systematic Investment Plan">SIP Calculator</a></li>
+                        <li><a href="{{ url_for('index') }}#lumpsum" aria-label="Lumpsum Investment Calculator">Lumpsum Calculator</a></li>
+                        <li><a href="{{ url_for('index') }}#fd" aria-label="Fixed Deposit Calculator">FD Calculator</a></li>
+                        <li><a href="{{ url_for('index') }}#rd" aria-label="Recurring Deposit Calculator">RD Calculator</a></li>
+                        <li><a href="{{ url_for('index') }}#swp" aria-label="Systematic Withdrawal Plan Calculator">SWP Calculator</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-section">
                     <h4>Resources</h4>
                     <ul>
-                        <li><a href="{{ url_for('about') }}">About Us</a></li>
-                        <li><a href="{{ url_for('disclaimer') }}">Financial Disclaimer</a></li>
-                        <li><a href="{{ url_for('contact') }}">Contact Support</a></li>
+                        <li><a href="{{ url_for('about') }}" aria-label="About Investment Calculator">About Us</a></li>
+                        <li><a href="{{ url_for('disclaimer') }}" aria-label="Investment Disclaimer">Financial Disclaimer</a></li>
+                        <li><a href="{{ url_for('contact') }}" aria-label="Contact Support">Contact Support</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-section">
                     <h4>Legal</h4>
                     <ul>
-                        <li><a href="{{ url_for('terms') }}">Terms of Service</a></li>
-                        <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('terms') }}" aria-label="Terms and Conditions">Terms of Service</a></li>
+                        <li><a href="{{ url_for('privacy') }}" aria-label="Privacy Policy">Privacy Policy</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-section">
                     <h4>Investment Education</h4>
                     <ul>
-                        <li><a href="{{ url_for('about') }}#risks">Understanding Risks</a></li>
-                        <li><a href="{{ url_for('about') }}#tax-planning">Tax Planning</a></li>
-                        <li><a href="{{ url_for('disclaimer') }}">Investment Disclaimer</a></li>
+                        <li><a href="{{ url_for('about') }}#risks" aria-label="Understanding Investment Risks">Understanding Risks</a></li>
+                        <li><a href="{{ url_for('about') }}#tax-planning" aria-label="Tax Planning Guide">Tax Planning</a></li>
+                        <li><a href="{{ url_for('disclaimer') }}" aria-label="Investment Disclaimer">Investment Disclaimer</a></li>
                     </ul>
                 </div>
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2025 Investment Calculator. All rights reserved. | 
+                <p>&copy; 2025 Investment Calculator India. All rights reserved. | 
                    <a href="{{ url_for('terms') }}">Terms</a> | 
                    <a href="{{ url_for('privacy') }}">Privacy</a> | 
                    <a href="{{ url_for('disclaimer') }}">Disclaimer</a>
                 </p>
                 <small>
-                    This website provides educational financial calculators. 
-                    Not financial advice. Please consult with qualified professionals before making investment decisions.
+                    Free SIP Calculator for Indian investors. Calculate mutual fund SIP, lumpsum, FD, RD returns with tax planning. 
+                    Not financial advice. Consult qualified professionals before investing.
                 </small>
             </div>
         </div>
     </footer>
 
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

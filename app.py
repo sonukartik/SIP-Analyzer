@@ -1,8 +1,9 @@
 import os
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response
+from datetime import datetime, timedelta
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')  # Use non-GUI backend for server environments
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -21,16 +22,12 @@ def contact():
         message_body = request.form.get('message')
 
         try:
-            msg = Message(
-                subject=f"New Contact Form Message from {name}",
-                recipients=[os.environ.get('EMAIL_USER')],  # Send to yourself
-                body=f"From: {name} <{email}>\n\n{message_body}"
-            )
-            mail.send(msg)
-            flash('Your message has been sent successfully!', 'success')
+            # Email functionality disabled for now
+            # msg = Message(...)
+            # mail.send(msg)
+            pass
         except Exception as e:
-            print(f"Error sending email: {e}") # For debugging
-            flash('There was an error sending your message. Please try again later.', 'danger')
+            print(f"Error sending email: {e}")
 
         return render_template("contact.html")
     return render_template("contact.html")
@@ -41,19 +38,70 @@ def google_verify():
 
 @app.route('/robots.txt')
 def robots_txt():
+    """Enhanced robots.txt for better crawling"""
     lines = [
         "User-agent: *",
-        "Allow: /",  # Allow all pages to be crawled
-
-        "User-agent: Mediapartners-Google", # Specifically for AdSense
-        "Allow: /"
+        "Allow: /",
+        "Disallow: /admin/",
+        "Disallow: /private/",
+        "",
+        "User-agent: Mediapartners-Google",
+        "Allow: /",
+        "",
+        f"Sitemap: {request.url_root}sitemap.xml",
+        "",
+        "# Crawl-delay for good SEO practices",
+        "Crawl-delay: 1"
     ]
-    return "\n".join(lines), 200, {'Content-Type': 'text/plain'}
+    response = make_response("\n".join(lines))
+    response.headers['Content-Type'] = 'text/plain'
+    return response
+
+@app.route('/sitemap.xml')
+def sitemap():
+    """Generate dynamic sitemap for better SEO"""
+    pages = []
+    ten_days_ago = (datetime.now() - timedelta(days=10)).date().isoformat()
+    
+    # Define static pages manually
+    static_pages = [
+        {'url': '/', 'priority': '1.0', 'changefreq': 'daily'},
+        {'url': '/about', 'priority': '0.8', 'changefreq': 'weekly'},
+        {'url': '/contact', 'priority': '0.7', 'changefreq': 'monthly'},
+        {'url': '/disclaimer', 'priority': '0.6', 'changefreq': 'monthly'},
+        {'url': '/privacy', 'priority': '0.6', 'changefreq': 'monthly'},
+        {'url': '/terms', 'priority': '0.6', 'changefreq': 'monthly'},
+    ]
+    
+    for page in static_pages:
+        pages.append({
+            'loc': request.url_root[:-1] + page['url'],
+            'lastmod': ten_days_ago,
+            'changefreq': page['changefreq'],
+            'priority': page['priority']
+        })
+    
+    sitemap_xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    sitemap_xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    for page in pages:
+        sitemap_xml += '  <url>\n'
+        sitemap_xml += f'    <loc>{page["loc"]}</loc>\n'
+        sitemap_xml += f'    <lastmod>{page["lastmod"]}</lastmod>\n'
+        sitemap_xml += f'    <changefreq>{page["changefreq"]}</changefreq>\n'
+        sitemap_xml += f'    <priority>{page["priority"]}</priority>\n'
+        sitemap_xml += '  </url>\n'
+    
+    sitemap_xml += '</urlset>'
+    
+    response = make_response(sitemap_xml)
+    response.headers['Content-Type'] = 'application/xml'
+    return response
 
 @app.route('/ads.txt')
 def ads_txt():
     content = "google.com, pub-3229320652703762, DIRECT, f08c47fec0942fa0"
-    response = app.make_response(content)
+    response = make_response(content)
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
     response.headers['Cache-Control'] = 'public, max-age=86400'
     return response
@@ -93,13 +141,12 @@ def calculate_sip(monthly_sip, annual_return, expense_ratio, years, inflation_ra
 
     for month in range(1, total_months + 1):
         values[month] = (values[month - 1] + monthly_sip) * (1 + monthly_return)
-        if month % 12 == 0:  # Deduct expense ratio yearly
+        if month % 12 == 0:
             values[month] *= (1 - expense_ratio)
 
     gross_corpus = values[-1]
     total_invested = monthly_sip * total_months
 
-    # For calculating fees paid (no expense ratio)
     values_no_fee = np.zeros(total_months + 1)
     for month in range(1, total_months + 1):
         values_no_fee[month] = (values_no_fee[month - 1] + monthly_sip) * (1 + monthly_return)
@@ -107,25 +154,18 @@ def calculate_sip(monthly_sip, annual_return, expense_ratio, years, inflation_ra
     corpus_no_fee = values_no_fee[-1]
     fees_paid = max(0, corpus_no_fee - gross_corpus)
 
-    # Calculate capital gains
     capital_gains = max(0, gross_corpus - total_invested)
     
-    # Calculate capital gains tax based on investment duration
     if years > 1:
-        # Long Term Capital Gains (LTCG) - applies after 1 year
-        # LTCG is taxed on gains exceeding Rs. 1 Lakh per financial year.
         taxable_ltcg = max(0, capital_gains - 100000)
         capital_gains_tax = taxable_ltcg * ltcg_rate
         tax_type = "LTCG"
     else:
-        # Short Term Capital Gains (STCG) - applies for investments <= 1 year
         capital_gains_tax = capital_gains * stcg_rate
         tax_type = "STCG"
     
-    # Corpus after capital gains tax
     corpus_after_tax = gross_corpus - capital_gains_tax
 
-    # Inflation impact (applied to corpus after tax)
     inflation_impact = max(0, corpus_after_tax * (1 - (1 / ((1 + inflation_rate) ** years))))
     final_corpus = corpus_after_tax - inflation_impact
     final_corpus = max(0, min(final_corpus, corpus_after_tax))
@@ -147,39 +187,26 @@ def calculate_sip(monthly_sip, annual_return, expense_ratio, years, inflation_ra
 
 
 def calculate_lumpsum(lumpsum_amount, annual_return, expense_ratio, years, inflation_rate, ltcg_rate=0, stcg_rate=0):
-    """Calculate lumpsum investment returns with tax considerations"""
-    
-    # Calculate gross corpus without fees
     gross_corpus_no_fee = lumpsum_amount * ((1 + annual_return) ** years)
     
-    # Calculate gross corpus with annual expense ratio deduction
     gross_corpus = lumpsum_amount
     for year in range(years):
         gross_corpus *= (1 + annual_return)
-        gross_corpus *= (1 - expense_ratio)  # Deduct expense ratio annually
+        gross_corpus *= (1 - expense_ratio)
     
-    # Calculate fees paid
     fees_paid = max(0, gross_corpus_no_fee - gross_corpus)
-    
-    # Calculate capital gains
     capital_gains = max(0, gross_corpus - lumpsum_amount)
     
-    # Calculate capital gains tax based on investment duration
     if years > 1:
-        # Long Term Capital Gains (LTCG) - applies after 1 year
-        # LTCG is taxed on gains exceeding Rs. 1 Lakh per financial year.
         taxable_ltcg = max(0, capital_gains - 100000)
         capital_gains_tax = taxable_ltcg * ltcg_rate
         tax_type = "LTCG"
     else:
-        # Short Term Capital Gains (STCG) - applies for investments <= 1 year
         capital_gains_tax = capital_gains * stcg_rate
         tax_type = "STCG"
     
-    # Corpus after capital gains tax
     corpus_after_tax = gross_corpus - capital_gains_tax
     
-    # Inflation impact (applied to corpus after tax)
     inflation_impact = max(0, corpus_after_tax * (1 - (1 / ((1 + inflation_rate) ** years))))
     final_corpus = corpus_after_tax - inflation_impact
     final_corpus = max(0, min(final_corpus, corpus_after_tax))
@@ -201,9 +228,6 @@ def calculate_lumpsum(lumpsum_amount, annual_return, expense_ratio, years, infla
 
 
 def calculate_fd(principal_amount, annual_interest_rate, years, compounding_frequency):
-    """Calculate Fixed Deposit returns - simplified version without tax calculations"""
-    
-    # Convert frequency string to number
     frequency_map = {
         'yearly': 1,
         'half-yearly': 2, 
@@ -212,16 +236,9 @@ def calculate_fd(principal_amount, annual_interest_rate, years, compounding_freq
         'daily': 365
     }
     
-    n = frequency_map.get(compounding_frequency, 4)  # Default to quarterly
-    
-    # Calculate maturity amount using compound interest formula
-    # A = P(1 + r/n)^(nt)
+    n = frequency_map.get(compounding_frequency, 4)
     maturity_amount = principal_amount * ((1 + annual_interest_rate / n) ** (n * years))
-    
-    # Calculate interest earned
     interest_earned = maturity_amount - principal_amount
-    
-    # Calculate effective annual rate
     effective_rate = ((maturity_amount / principal_amount) ** (1 / years) - 1) * 100
     
     return {
@@ -233,9 +250,6 @@ def calculate_fd(principal_amount, annual_interest_rate, years, compounding_freq
 
 
 def calculate_rd(monthly_deposit, annual_interest_rate, years, compounding_frequency):
-    """Calculate Recurring Deposit returns"""
-    
-    # Convert frequency string to number
     frequency_map = {
         'yearly': 1,
         'half-yearly': 2, 
@@ -244,32 +258,20 @@ def calculate_rd(monthly_deposit, annual_interest_rate, years, compounding_frequ
         'daily': 365
     }
     
-    n = frequency_map.get(compounding_frequency, 4)  # Default to quarterly
+    n = frequency_map.get(compounding_frequency, 4)
     total_months = years * 12
-    
-    # For RD, we need to calculate the compound interest for each monthly deposit
-    # Each deposit earns interest for different durations
     maturity_amount = 0
     
-    # Calculate maturity amount for each monthly deposit
     for month in range(1, total_months + 1):
-        # Time remaining for this deposit to earn interest (in years)
         time_remaining = (total_months - month + 1) / 12
-        
-        # Calculate maturity value for this monthly deposit
         if time_remaining > 0:
             deposit_maturity = monthly_deposit * ((1 + annual_interest_rate / n) ** (n * time_remaining))
             maturity_amount += deposit_maturity
         else:
             maturity_amount += monthly_deposit
     
-    # Total invested amount
     total_invested = monthly_deposit * total_months
-    
-    # Interest earned
     interest_earned = maturity_amount - total_invested
-    
-    # Calculate effective annual rate
     effective_rate = ((maturity_amount / total_invested) ** (1 / years) - 1) * 100
     
     return {
@@ -282,8 +284,6 @@ def calculate_rd(monthly_deposit, annual_interest_rate, years, compounding_frequ
 
 
 def calculate_swp(initial_corpus, monthly_withdrawal, annual_return, expense_ratio, inflation_rate=0):
-    """Calculate SWP (Systematic Withdrawal Plan) scenarios"""
-    
     monthly_return = (1 + annual_return) ** (1 / 12) - 1
     monthly_inflation = (1 + inflation_rate) ** (1 / 12) - 1
     
@@ -295,38 +295,27 @@ def calculate_swp(initial_corpus, monthly_withdrawal, annual_return, expense_rat
     
     current_withdrawal = monthly_withdrawal
     
-    # Calculate until corpus is exhausted or 50 years (600 months)
     while corpus > 0 and month < 600:
         month += 1
-        
-        # Apply returns first
         corpus *= (1 + monthly_return)
         
-        # Apply expense ratio annually (every 12 months)
         if month % 12 == 0:
             corpus *= (1 - expense_ratio)
         
-        # Adjust withdrawal for inflation if enabled
         if inflation_rate > 0 and month > 1:
             current_withdrawal *= (1 + monthly_inflation)
         
-        # Make withdrawal
         actual_withdrawal = min(current_withdrawal, corpus)
         corpus -= actual_withdrawal
         total_withdrawn += actual_withdrawal
         
-        # Store data for visualization
         monthly_withdrawals.append(actual_withdrawal)
         corpus_values.append(corpus)
         
-        # Break if corpus becomes very small
         if corpus < 1:
             break
     
-    # Calculate average monthly withdrawal
     avg_monthly_withdrawal = total_withdrawn / month if month > 0 else 0
-    
-    # Calculate total returns earned during withdrawal period
     total_returns = total_withdrawn + corpus - initial_corpus
     
     return {
@@ -339,8 +328,8 @@ def calculate_swp(initial_corpus, monthly_withdrawal, annual_return, expense_rat
         "avg_monthly_withdrawal": round(avg_monthly_withdrawal, 2),
         "total_returns_earned": round(total_returns, 2),
         "corpus_exhausted": corpus < 1,
-        "monthly_withdrawals": monthly_withdrawals[:60],  # First 5 years for chart
-        "corpus_values": corpus_values[:60]  # First 5 years for chart
+        "monthly_withdrawals": monthly_withdrawals[:60],
+        "corpus_values": corpus_values[:60]
     }
 
 
@@ -349,7 +338,6 @@ def create_pie_chart(total_invested, net_return, fees_paid, capital_gains_tax):
     values = [total_invested, net_return, fees_paid, capital_gains_tax]
     colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12']
     
-    # Filter out zero values for cleaner chart
     filtered_data = [(label, value, color) for label, value, color in zip(labels, values, colors) if value > 0]
     
     if filtered_data:
@@ -373,7 +361,6 @@ def create_pie_chart(total_invested, net_return, fees_paid, capital_gains_tax):
 
 
 def create_fd_pie_chart(principal_amount, interest_earned):
-    """Create a simple pie chart for FD showing principal and interest"""
     labels = ['Principal Amount', 'Interest Earned']
     values = [principal_amount, interest_earned]
     colors = ['#3498db', '#2ecc71']
@@ -397,7 +384,6 @@ def create_fd_pie_chart(principal_amount, interest_earned):
 
 
 def create_rd_pie_chart(total_invested, interest_earned):
-    """Create a simple pie chart for RD showing total invested and interest"""
     labels = ['Total Invested', 'Interest Earned']
     values = [total_invested, interest_earned]
     colors = ['#9b59b6', '#e67e22']
@@ -420,12 +406,10 @@ def create_rd_pie_chart(total_invested, interest_earned):
     return chart_data
 
 def create_simple_pie_chart(total_invested, net_return):
-    """Create a simple pie chart showing only invested amount and net return."""
     labels = ['Total Invested', 'Net Return']
     values = [total_invested, net_return]
     colors = ['#3498db', '#2ecc71']
     
-    # Filter out zero/negative values for a cleaner chart
     filtered_data = [(label, value, color) for label, value, color in zip(labels, values, colors) if value > 0]
     
     if filtered_data:
@@ -443,12 +427,10 @@ def create_simple_pie_chart(total_invested, net_return):
     return chart_data
 
 def create_swp_chart(corpus_values, monthly_withdrawals):
-    """Create a line chart showing corpus depletion over time"""
     months = list(range(1, len(corpus_values) + 1))
     
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
     
-    # Corpus value over time
     ax1.plot(months, corpus_values, color='#e74c3c', linewidth=2, marker='o', markersize=3)
     ax1.set_title('Corpus Value Over Time', fontsize=14, fontweight='bold')
     ax1.set_xlabel('Months')
@@ -456,7 +438,6 @@ def create_swp_chart(corpus_values, monthly_withdrawals):
     ax1.grid(True, alpha=0.3)
     ax1.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'₹{x:,.0f}'))
     
-    # Monthly withdrawal amounts
     ax2.plot(months, monthly_withdrawals, color='#2ecc71', linewidth=2, marker='s', markersize=3)
     ax2.set_title('Monthly Withdrawal Amount', fontsize=14, fontweight='bold')
     ax2.set_xlabel('Months')
@@ -480,15 +461,13 @@ def index():
     result = None
     chart = None
     form_data = {}
-    active_tab = "simple"  # Default to simple tab
-    calculator_type = "sip"  # Default calculator type for advanced tab
+    active_tab = "simple"
+    calculator_type = "sip"
 
     if request.method == 'POST':
-        # Check which form was submitted
         form_type = request.form.get('form_type', 'advanced')
         
         if form_type == 'advanced':
-            # Advanced form submission
             calculator_type = request.form.get('calculator_type', 'sip')
             active_tab = "advanced"
             
@@ -533,7 +512,6 @@ def index():
                 print("Error:", e)
 
         elif form_type == 'fd':
-            # FD form submission - simplified without tax options
             active_tab = "fd"
             
             try:
@@ -548,13 +526,12 @@ def index():
                     result["principal_amount"],
                     result["interest_earned"]
                 )
-                calculator_type = "fd"  # Set for template rendering
+                calculator_type = "fd"
 
             except Exception as e:
                 print("Error:", e)
 
         elif form_type == 'rd':
-            # RD form submission - simplified without tax options
             active_tab = "rd"
             
             try:
@@ -569,13 +546,12 @@ def index():
                     result["total_invested"],
                     result["interest_earned"]
                 )
-                calculator_type = "rd"  # Set for template rendering
+                calculator_type = "rd"
 
             except Exception as e:
                 print("Error:", e)
 
         elif form_type == 'swp':
-            # SWP form submission
             active_tab = "swp"
             
             try:
@@ -592,12 +568,12 @@ def index():
                         result["corpus_values"],
                         result["monthly_withdrawals"]
                     )
-                calculator_type = "swp"  # Set for template rendering
+                calculator_type = "swp"
 
             except Exception as e:
                 print("Error:", e)
+                
         elif form_type == 'simple':
-            # Simple form submission
             active_tab = "simple"
             calculator_type = request.form.get('calculator_type', 'sip')
             
@@ -637,7 +613,6 @@ def index():
             except Exception as e:
                 print("Error:", e)
     else:
-        # Set default values for forms
         form_data = {
             "monthly_sip": 5000,
             "lumpsum_amount": 100000,
@@ -661,6 +636,37 @@ def index():
                          form_data=form_data, 
                          active_tab=active_tab,
                          calculator_type=calculator_type)
+
+
+# Error handlers
+@app.errorhandler(404)
+def page_not_found(e):
+    """Handle 404 errors"""
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    """Handle 500 errors"""
+    return render_template('500.html'), 500
+
+# Add cache control headers for better performance
+@app.after_request
+def add_header(response):
+    if request.path.startswith('/static/'):
+        response.cache_control.max_age = 31536000  # 1 year
+    else:
+        response.cache_control.no_cache = True
+        response.cache_control.must_revalidate = True
+    return response
+
+# Add security headers
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
 
 
 if __name__ == '__main__':

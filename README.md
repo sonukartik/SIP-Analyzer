@@ -60,15 +60,26 @@ SIP-Analyzer/
 ```bash
 git clone https://github.com/sonukartik/SIP-Analyzer.git
 cd SIP-Analyzer
-2️⃣ Install Dependencies
+```
+
+### 2️⃣ Install Dependencies
+
+```
 pip install -r requirements.txt
-3️⃣ Run the Application
+```
+
+### 3️⃣ Run the Application
+
+```
 python app.py
+```
 
 Then open in your browser:
 
+```
 http://localhost:5000/
 📈 Example Use Case
+```
 
 A user enters:
 

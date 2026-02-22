@@ -73,6 +73,7 @@ Generates visualization charts
 
 Renders results dynamically in the browser
 
+```
 📂 Project Structure
 SIP-Analyzer/
 │
@@ -81,6 +82,8 @@ SIP-Analyzer/
 ├── static/             # Static assets (CSS/images)
 ├── requirements.txt    # Dependencies
 └── README.md
+```
+
 ▶️ Running the Project Locally
 1️⃣ Clone the Repository
 git clone https://github.com/sonukartik/SIP-Analyzer.git

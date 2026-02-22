@@ -1,91 +1,63 @@
-📊 SIP-Analyzer
+# 📊 SIP-Analyzer
 
 A Flask-based web application that helps users calculate and visualize returns for multiple investment strategies including SIP, Lumpsum, FD, RD, and SWP.
 
 Built using Python and Flask, this project provides an interactive UI for financial analysis with dynamic chart generation.
 
-🚀 Features
-💰 Investment Calculators
+---
 
-SIP (Systematic Investment Plan)
+## 🚀 Features
 
-Lumpsum Investment
+### 💰 Investment Calculators
+- SIP (Systematic Investment Plan)
+- Lumpsum Investment
+- Fixed Deposit (FD)
+- Recurring Deposit (RD)
+- Systematic Withdrawal Plan (SWP)
 
-Fixed Deposit (FD)
+### 📈 Visual Analytics
+- Dynamic pie charts for corpus breakdown
+- Investment vs returns visualization
+- Fee and tax impact representation
+- Charts generated using Matplotlib
 
-Recurring Deposit (RD)
+### 🌐 Web Interface
+- Clean HTML templates using Jinja2
+- Multiple informational pages (About, Contact, Privacy Policy, Terms)
+- Dynamic sitemap generation
+- Base64-encoded image rendering for charts
 
-Systematic Withdrawal Plan (SWP)
+---
 
-📈 Visual Analytics
+## 🛠️ Tech Stack
 
-Dynamic pie charts for corpus breakdown
+- Python 3
+- Flask
+- Matplotlib
+- HTML + Jinja2
+- CSS
 
-Investment vs returns visualization
+---
 
-Fee and tax impact representation
+## 📂 Project Structure
 
-Charts generated using Matplotlib
 
-🌐 Web Interface
-
-Clean HTML templates using Jinja2
-
-Multiple pages: About, Contact, Privacy Policy, Terms
-
-Dynamic sitemap generation
-
-Base64-encoded image rendering for charts
-
-🛠️ Tech Stack
-
-Python 3
-
-Flask
-
-Matplotlib
-
-HTML + Jinja2
-
-Basic CSS styling
-
-🧠 How It Works
-
-Users input:
-
-Investment amount
-
-Expected annual return
-
-Duration
-
-Expense ratio (for SIP)
-
-Withdrawal details (for SWP)
-
-The application:
-
-Applies standard financial formulas
-
-Computes total investment, corpus, and returns
-
-Generates visualization charts
-
-Renders results dynamically in the browser
-
-```
-📂 Project Structure
 SIP-Analyzer/
 │
-├── app.py              # Main Flask application
-├── templates/          # HTML templates (Jinja2)
-├── static/             # Static assets (CSS/images)
-├── requirements.txt    # Dependencies
+├── app.py # Main Flask application
+├── templates/ # HTML templates (Jinja2)
+├── static/ # Static assets (CSS/images)
+├── requirements.txt # Dependencies
 └── README.md
-```
 
-▶️ Running the Project Locally
-1️⃣ Clone the Repository
+
+---
+
+## ▶️ Running the Project Locally
+
+### 1️⃣ Clone the Repository
+
+```bash
 git clone https://github.com/sonukartik/SIP-Analyzer.git
 cd SIP-Analyzer
 2️⃣ Install Dependencies
@@ -93,7 +65,7 @@ pip install -r requirements.txt
 3️⃣ Run the Application
 python app.py
 
-Then open:
+Then open in your browser:
 
 http://localhost:5000/
 📈 Example Use Case
@@ -102,7 +74,7 @@ A user enters:
 
 SIP amount: ₹5,000/month
 
-Expected return: 12%
+Expected annual return: 12%
 
 Duration: 10 years
 

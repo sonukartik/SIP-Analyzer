@@ -76,10 +76,10 @@ Renders results dynamically in the browser
 📂 Project Structure
 SIP-Analyzer/
 │
-├── app.py                 # Main Flask application
-├── templates/             # HTML templates (Jinja2)
-├── static/                # Static assets (CSS/images)
-├── requirements.txt       # Dependencies
+├── app.py              # Main Flask application
+├── templates/          # HTML templates (Jinja2)
+├── static/             # Static assets (CSS/images)
+├── requirements.txt    # Dependencies
 └── README.md
 ▶️ Running the Project Locally
 1️⃣ Clone the Repository
@@ -93,7 +93,7 @@ python app.py
 Then open:
 
 http://localhost:5000/
-📊 Example Use Case
+📈 Example Use Case
 
 A user enters:
 
@@ -103,7 +103,7 @@ Expected return: 12%
 
 Duration: 10 years
 
-The app calculates:
+The application calculates:
 
 Total invested amount
 

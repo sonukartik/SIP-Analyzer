@@ -41,7 +41,7 @@ Built using Python and Flask, this project provides an interactive UI for financ
 
 ## 📂 Project Structure
 
-
+```
 SIP-Analyzer/
 │
 ├── app.py # Main Flask application
@@ -49,7 +49,7 @@ SIP-Analyzer/
 ├── static/ # Static assets (CSS/images)
 ├── requirements.txt # Dependencies
 └── README.md
-
+```
 
 ---
 

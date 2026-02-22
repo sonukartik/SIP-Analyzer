@@ -78,9 +78,10 @@ Then open in your browser:
 
 ```
 http://localhost:5000/
-📈 Example Use Case
 ```
 
+📈 Example Use Case
+```
 A user enters:
 
 SIP amount: ₹5,000/month
@@ -98,3 +99,4 @@ Final corpus value
 Net returns
 
 Visual breakdown chart
+```
